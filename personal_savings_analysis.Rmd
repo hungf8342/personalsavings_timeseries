@@ -1,0 +1,42 @@
+---
+title: "Personal Savings Analysis"
+author: "Frances Hung"
+date: "11/6/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(TSA)
+require(dplyr)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+savings<-ts(read.csv("savings.csv",header=TRUE) %>% select(2),frequency=4)
+
+plot(savings,xlab="year (by quarter)",ylab="% income as savings",main="Personal savings as % of disposable income 1955-1979")
+points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)))
+```
+
+```{r}
+diffs<-(savings-zlag(savings))
+fit<-lm(savings~diffs)
+#predicts<-predict.lm(fit)
+plot(diffs)
+resids<-rstudent(fit)
+hist(resids)
+acf(resids)
+pacf(resids,lag=90)
+
+ar(diffs[3:length(diffs)-1],order.max=2,AIC=F,method="yw")
+arima(savings,order=c(2,1,0),method='ML')
+eacf(diffs[3:length(diffs)-1])
+```
+
+
