@@ -11,18 +11,52 @@ require(TSA)
 require(dplyr)
 ```
 
-## R Markdown
+```{r}
+# load the time series
+savings<-ts(read.csv("savings.csv",header=TRUE, nrows=104) %>% select(2), start=c(1955),frequency=4)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-savings<-ts(read.csv("savings.csv",header=TRUE) %>% select(2),frequency=4)
-
-plot(savings,xlab="year (by quarter)",ylab="% income as savings",main="Personal savings as % of disposable income 1955-1979")
-points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)))
+# plot the original time series with labels for quarters
+plot(savings, xlab="Year (by Quarter)", 
+     ylab= "Percent of Disposible Income", 
+     main= "Time Series of Personal Savings in the US (1955-1980)")
+points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+abline(mean(savings),0)
 ```
+```{r}
+# should we do a transformation?
+boxcox = BoxCox.ar(savings)
+boxcox$ci
+lambda = boxcox$mle
+lambda
+```
+
+```{r}
+# use the eacf and best subsets to find a candidate model
+eacf(savings)
+sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(best.subsets)
+```
+
+```{r}
+# take a difference of the series
+diffs = (savings - zlag(savings))[2:104]
+plot(diffs, type="o")
+abline(0,0)
+```
+
+
+
+
+
+```{r}
+# find candidate models for the differenced series
+eacf(diffs)
+best.subsets = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(best.subsets)
+```
+
+
+
 
 ```{r}
 diffs<-(savings-zlag(savings))
