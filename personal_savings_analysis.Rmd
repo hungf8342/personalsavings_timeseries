@@ -13,7 +13,11 @@ require(dplyr)
 
 ```{r}
 # load the time series
-savings<-ts(read.csv("savings.csv",header=TRUE, nrows=104) %>% select(2), start=c(1955),frequency=4)
+savings = read.csv("savings.csv",header=TRUE, nrows=104)
+savings = savings %>% select(2)
+savings.test = savings[80:84,]
+savings = savings[1:79,]
+savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the original time series with labels for quarters
 plot(savings, xlab="Year (by Quarter)", 
@@ -22,7 +26,10 @@ plot(savings, xlab="Year (by Quarter)",
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 abline(mean(savings),0)
 ```
-```{r}
+We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 5 observations in order to use them as test points at the end.
+
+
+```{r,warning=FALSE,eval=FALSE}
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
 boxcox$ci
@@ -30,16 +37,28 @@ lambda = boxcox$mle
 lambda
 ```
 
+The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance.
+
+
+
+```{r}
+acf(savings)
+pacf(savings)
+```
+
+
 ```{r}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
 sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
-plot(best.subsets)
+plot(sub)
 ```
+
+Without taking a difference, an AR(1) process is a good candidate for our data.
 
 ```{r}
 # take a difference of the series
-diffs = (savings - zlag(savings))[2:104]
+diffs = (savings - zlag(savings))[2:79]
 plot(diffs, type="o")
 abline(0,0)
 ```
