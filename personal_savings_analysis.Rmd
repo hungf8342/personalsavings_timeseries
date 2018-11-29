@@ -11,33 +11,51 @@ require(TSA)
 require(dplyr)
 ```
 
+# Time Series Exploration
+
 ```{r}
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
-savings.test = savings[80:84,]
-savings = savings[1:79,]
 savings<-ts(savings, start=c(1955),frequency=4)
 
-# plot the original time series with labels for quarters
+# plot the original time series
 plot(savings, xlab="Year (by Quarter)", 
      ylab= "Percent of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 abline(mean(savings),0)
 ```
-We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 5 observations in order to use them as test points at the end.
+
+The time series spans over 26 years with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, we do not see any obvious seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates. We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 6 observations in order to use them as test points at the end. The resulting series is below:
+
+```{r}
+# set aside points to validate our forecasts
+savings.test = savings[79:84,]
+
+# remove the last 5 years because of the huge dip due to recession
+savings = savings[1:78,]
+savings<-ts(savings, start=c(1955),frequency=4)
+
+# plot the shortened time series with labels for quarters
+plot(savings, xlab="Year (by Quarter)", 
+     ylab= "Percent of Disposible Income", 
+     main= "Time Series of Personal Savings in the US (1955-1980)")
+points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+```
+
+There is a general upward trend in the data, as well as a dependence on previous quarters' savings to determine current personal savings percentages.
+
+
 
 
 ```{r,warning=FALSE,eval=FALSE}
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
-boxcox$ci
-lambda = boxcox$mle
-lambda
+boxcox$mle
 ```
 
-The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance.
+The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance since $\lambda$ is about equal to 1.
 
 
 
@@ -46,6 +64,9 @@ acf(savings)
 pacf(savings)
 ```
 
+The PACF seems to indicate that an AR(1) process may be a good candidate model.
+
+# Model Selection
 
 ```{r}
 # use the eacf and best subsets to find a candidate model
@@ -54,42 +75,24 @@ sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-Without taking a difference, an AR(1) process is a good candidate for our data.
+While the EACF is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models
+
+
+# Model Fitting 
 
 ```{r}
-# take a difference of the series
-diffs = (savings - zlag(savings))[2:79]
-plot(diffs, type="o")
-abline(0,0)
+# fit an AR(1) process
+arima(savings, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 0)), method=c('ML'))
 ```
 
-
-
-
+Here are our parameters for the AR(1) model. Given these parameters, the AR(1) model is $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$.
 
 ```{r}
-# find candidate models for the differenced series
-eacf(diffs)
-best.subsets = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
-plot(best.subsets)
+# fit the seasonal model
+arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
 ```
 
+And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.28)(1-.861(B-6.28))(1+.228(B-6.28)^4) = e_t$
 
-
-
-```{r}
-diffs<-(savings-zlag(savings))
-fit<-lm(savings~diffs)
-#predicts<-predict.lm(fit)
-plot(diffs)
-resids<-rstudent(fit)
-hist(resids)
-acf(resids)
-pacf(resids,lag=90)
-
-ar(diffs[3:length(diffs)-1],order.max=2,AIC=F,method="yw")
-arima(savings,order=c(2,1,0),method='ML')
-eacf(diffs[3:length(diffs)-1])
-```
 
 
