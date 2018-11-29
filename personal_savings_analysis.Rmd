@@ -17,6 +17,7 @@ require(dplyr)
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
+savings.entire = savings[1:84,]
 savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the original time series
@@ -66,7 +67,7 @@ pacf(savings)
 
 The PACF seems to indicate that an AR(1) process may be a good candidate model.
 
-# Model Selection
+# Model Specification
 
 ```{r}
 # use the eacf and best subsets to find a candidate model
@@ -92,7 +93,32 @@ Here are our parameters for the AR(1) model. Given these parameters, the AR(1) m
 arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
 ```
 
-And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.28)(1-.861(B-6.28))(1+.228(B-6.28)^4) = e_t$
+And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
 
 
 
+# Diagnostics
+
+
+
+# Forecasting
+
+```{r}
+# forecasts for the AR(1) process
+set.seed(47)
+forecasts = c()
+Y_t1 = savings[78]
+for (i in 1:6) {
+  Y_t = .825*(Y_t1-6.28) + rnorm(1,0,sqrt(.336)) + 6.28
+  forecasts[i] = Y_t
+  Y_t1 = Y_t
+}
+```
+
+```{r}
+# plot the forecasts
+plot(savings.entire, type="o")
+points(79:84,forecasts, col="red")
+```
+
+The forecasts from the AR(1) model are pretty good!
