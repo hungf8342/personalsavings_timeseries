@@ -1,7 +1,7 @@
 ---
-title: "Personal Savings Analysis"
-author: "Frances Hung"
-date: "11/6/2018"
+title: "Personal Savings Analysis - Rough Draft"
+author: "Andrew Brown, Melissa Hooke, Frances Hung, Mai Nguyen, Brenner Ryan"
+date: "11/29/2018"
 output: pdf_document
 ---
 
@@ -110,7 +110,7 @@ And here are the parameters for the multiplicative seasonal model. Given these p
 
 # Diagnostics
 
-How do we want to choose between these two models?
+These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
 
 # Forecasting
 
