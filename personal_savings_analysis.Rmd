@@ -45,7 +45,7 @@ plot(savings, xlab="Year (by Quarter)",
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 ```
 
-There is a general upward trend in the data, as well as a dependence on previous quarters' savings to determine current personal savings percentages.
+There is a general upward trend in the data, as well as a dependence on previous quarters' savings to determine current personal savings percentages. We may want to take a difference to see if that helps with stationarity, but first lets explore without taking the difference.
 
 
 
@@ -61,8 +61,8 @@ The Boxcox output indicates that a transformation is not necessary in order to s
 
 
 ```{r}
-acf(savings)
-pacf(savings)
+acf(savings, lag.max = 20)
+pacf(savings, lag.max = 20)
 ```
 
 The PACF seems to indicate that an AR(1) process may be a good candidate model.
@@ -76,7 +76,18 @@ sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-While the EACF is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models
+While the EACF is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
+
+
+```{r}
+diffs = (savings-zlag(savings))[2:78]
+eacf(diffs)
+sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(sub)
+```
+
+For the differenced series, a seasonal period of 6 is being suggested, which doesn't seem to make much sense.
+
 
 
 # Model Fitting 
@@ -99,7 +110,7 @@ And here are the parameters for the multiplicative seasonal model. Given these p
 
 # Diagnostics
 
-
+How do we want to choose between these two models?
 
 # Forecasting
 
