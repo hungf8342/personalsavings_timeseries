@@ -9,6 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 require(TSA)
 require(dplyr)
+require(astsa)
 ```
 
 # Time Series Exploration
@@ -94,14 +95,16 @@ For the differenced series, a seasonal period of 6 is being suggested, which doe
 
 ```{r}
 # fit an AR(1) process
-arima(savings, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 0)), method=c('ML'))
+AR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 0)), method=c('ML'))
+AR1model
 ```
 
 Here are our parameters for the AR(1) model. Given these parameters, the AR(1) model is $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$.
 
 ```{r}
 # fit the seasonal model
-arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
+SAR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
+SAR1model
 ```
 
 And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
@@ -112,24 +115,39 @@ And here are the parameters for the multiplicative seasonal model. Given these p
 
 These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
 
+```{r}
+tsdiag(AR1model)
+tsdiag(SAR1model)
+```
+
+```{r}
+ARresids = rstandard(AR1model)
+SARresids = rstandard(SAR1model)
+
+qqnorm(ARresids)
+qqnorm(SARresids)
+
+shapiro.test(ARresids)
+shapiro.test(SARresids)
+
+runs(ARresids)
+runs(SARresids)
+```
+
+
+
 # Forecasting
 
+
+
 ```{r}
-# forecasts for the AR(1) process
-set.seed(47)
-forecasts = c()
-Y_t1 = savings[78]
-for (i in 1:6) {
-  Y_t = .825*(Y_t1-6.28) + rnorm(1,0,sqrt(.336)) + 6.28
-  forecasts[i] = Y_t
-  Y_t1 = Y_t
-}
+sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 0, D = 0, Q = 0, S = 0)
+points(79:84,savings.test, col="blue")
 ```
 
 ```{r}
-# plot the forecasts
-plot(savings.entire, type="o")
-points(79:84,forecasts, col="red")
+sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 1, D = 0, Q = 0, S = 4)
+points(79:84,savings.test, col="blue")
 ```
 
-The forecasts from the AR(1) model are pretty good!
+
