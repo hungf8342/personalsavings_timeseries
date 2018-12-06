@@ -107,6 +107,14 @@ SAR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0
 SAR1model
 ```
 
+```{r}
+diffs = savings - zlag(savings)
+diffs = diffs[1:78]
+SAR6model = arima(diffs, order = c(0, 0, 0), seasonal = list(order = c(1, 0, 1), period = 6), method=c('ML'))
+SAR6model
+```
+
+
 And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
 
 
@@ -118,20 +126,25 @@ These two models are almost indistinguishable in terms of error. The AR(1) model
 ```{r}
 tsdiag(AR1model)
 tsdiag(SAR1model)
+tsdiag(SAR6model)
 ```
 
 ```{r}
 ARresids = rstandard(AR1model)
 SARresids = rstandard(SAR1model)
+SAR6resids = rstandard(SAR6model)
 
 qqnorm(ARresids)
 qqnorm(SARresids)
+qqnorm(SAR6resids)
 
 shapiro.test(ARresids)
 shapiro.test(SARresids)
+shapiro.test(SAR6resids)
 
 runs(ARresids)
 runs(SARresids)
+runs(SAR6resids)
 ```
 
 
@@ -150,4 +163,7 @@ sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 1, D = 0, Q = 0, S = 4)
 points(79:84,savings.test, col="blue")
 ```
 
+```{r}
+
+```
 
