@@ -14,7 +14,7 @@ require(astsa)
 
 # Time Series Exploration
 
-```{r}
+```{r, echo=FALSE}
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
@@ -29,9 +29,9 @@ points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=
 abline(mean(savings),0)
 ```
 
-The time series spans over 26 years with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, we do not see any obvious seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates. We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 6 observations in order to use them as test points at the end. The resulting series is below:
+The orinal time series spans over 26 years of personal savings data with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, we do not see any \textit{obvious} seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates. We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 6 observations in order to use them as test points at the end. The resulting series is below:
 
-```{r}
+```{r, echo=FALSE}
 # set aside points to validate our forecasts
 savings.test = savings[79:84,]
 
@@ -51,7 +51,7 @@ There is a general upward trend in the data, as well as a dependence on previous
 
 
 
-```{r,warning=FALSE,eval=FALSE}
+```{r,warning=FALSE}
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
 boxcox$mle
@@ -61,7 +61,7 @@ The Boxcox output indicates that a transformation is not necessary in order to s
 
 
 
-```{r}
+```{r, echo=FALSE}
 acf(savings, lag.max = 20)
 pacf(savings, lag.max = 20)
 ```
@@ -70,7 +70,7 @@ The PACF seems to indicate that an AR(1) process may be a good candidate model.
 
 # Model Specification
 
-```{r}
+```{r, echo=FALSE}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
 sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
@@ -144,7 +144,7 @@ shapiro.test(SAR6resids)
 
 runs(ARresids)
 runs(SARresids)
-runs(SAR6resids)
+#runs(SAR6resids)
 ```
 
 
@@ -163,7 +163,54 @@ sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 1, D = 0, Q = 0, S = 4)
 points(79:84,savings.test, col="blue")
 ```
 
-```{r}
+# Appendix: R Code
 
+```{r, eval=FALSE}
+# load the time series
+savings = read.csv("savings.csv",header=TRUE, nrows=104)
+savings = savings %>% select(2)
+savings.entire = savings[1:84,]
+savings<-ts(savings, start=c(1955),frequency=4)
+
+# plot the original time series
+plot(savings, xlab="Year (by Quarter)", 
+     ylab= "Percent of Disposible Income", 
+     main= "Time Series of Personal Savings in the US (1955-1980)")
+points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+abline(mean(savings),0)
 ```
 
+```{r, eval=FALSE}
+# set aside points to validate our forecasts
+savings.test = savings[79:84,]
+
+# remove the last 5 years because of the huge dip due to recession
+savings = savings[1:78,]
+savings<-ts(savings, start=c(1955),frequency=4)
+
+# plot the shortened time series with labels for quarters
+plot(savings, xlab="Year (by Quarter)", 
+     ylab= "Percent of Disposible Income", 
+     main= "Time Series of Personal Savings in the US (1955-1980)")
+points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+```
+
+```{r,warning=FALSE, eval=FALSE}
+# should we do a transformation?
+boxcox = BoxCox.ar(savings)
+boxcox
+boxcox$mle
+```
+
+```{r, eval=FALSE}
+# plot the acf and pacf of the original series
+acf(savings, lag.max = 20)
+pacf(savings, lag.max = 20)
+```
+
+```{r, eval=FALSE}
+# use the eacf and best subsets to find a candidate model
+eacf(savings)
+sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(sub)
+```
