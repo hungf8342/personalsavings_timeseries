@@ -14,7 +14,9 @@ require(astsa)
 
 # Time Series Exploration
 
-```{r, echo=FALSE}
+The orinal time series, as pulled from DataMarket (https://datamarket.com/), spans 26 years of personal savings as percent of disposible income in the US. Each year of the time series is divided into financial quarters, amounting to 104 total observations, which we plot in the time sereies below:
+
+```{r, echo=FALSE, height=3}
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
@@ -26,10 +28,11 @@ plot(savings, xlab="Year (by Quarter)",
      ylab= "Percent of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
-abline(mean(savings),0)
 ```
 
-The orinal time series spans over 26 years of personal savings data with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, we do not see any \textit{obvious} seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates. We took off the last 5 years because there was a huge drop due to a recession. Then we took off the last 6 observations in order to use them as test points at the end. The resulting series is below:
+From our original time series plot, we see that there is a general increasing trend with some sudden volatility in the 70s that may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates, so we have made the decision to remove the last 5 years since it will likely follow a different time series trend than the rest of the data.
+
+In addition, we set aside the last 6 observations in order to use them as test points to compare with our forecasts at the end of our analysis. The resulting series of 78 observations is plotted below:
 
 ```{r, echo=FALSE}
 # set aside points to validate our forecasts
@@ -44,11 +47,12 @@ plot(savings, xlab="Year (by Quarter)",
      ylab= "Percent of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+abline(lm(savings~time(savings)), col='blue')
 ```
 
-There is a general upward trend in the data, as well as a dependence on previous quarters' savings to determine current personal savings percentages. We may want to take a difference to see if that helps with stationarity, but first lets explore without taking the difference.
+In the time series, we see a general upward trend in the data, which indicates that the time series may not be stationary and we may want to consider taking the first difference of the data. Also, while do not see any \textit{obvious} seasonal trends, given that the data is divided into financial quarters we may want to consider the possibility of taking a seasonal difference to make our time series stationary. First, however, let's explore without taking the difference.
 
-
+The first step in analyzing our time series is to consider the possible need for a transformation to stabilize the variance of the series over time. In order to do this, we use the function \textsc{BoxCox.ar} to determine the appropriate power transformation for time-series data.
 
 
 ```{r,warning=FALSE}
@@ -57,31 +61,59 @@ boxcox = BoxCox.ar(savings)
 boxcox$mle
 ```
 
-The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance since $\lambda$ is about equal to 1.
-
+The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance since $\lambda$ is about equal to 1. Therefore, we proceed by examining the acf and pacf of the series.
 
 
 ```{r, echo=FALSE}
-acf(savings, lag.max = 20)
-pacf(savings, lag.max = 20)
+acf(savings, lag.max = 25)
+pacf(savings, lag.max = 25)
 ```
 
-The PACF seems to indicate that an AR(1) process may be a good candidate model.
+The PACF seems to indicate that an AR(1) process may be a good candidate model because the only non-zero sample partial autocorrelation is at lag $k=1$. For lags $k \geq 1$, the partial autocorrelations appear to reduce to white-noise.
+
+Next, we consider the differenced time series, which is plotted below:
+
+```{r}
+# calculate the differenced time series
+diffs = (savings-zlag(savings))[2:78]
+
+# plot the differenced time series
+plot(diffs, xlab="Year (by Quarter)", 
+     ylab= "Percent of Disposible Income", 
+     main= "Differenced Time Series of Personal Savings in the US (1955-1980)", type="o")
+abline(lm(diffs~time(diffs)), col="blue")
+```
+
+The plot of the first difference of our time series indicates that the upward trend in the data has been removed and the mean of the differenced series is about equal to zero.
+
+```{r}
+acf(diffs, lag.max = 25)
+pacf(diffs, lag.max = 25)
+```
+
+The ACF and PACF of the differenced series appear to suggest a seasonal trend in the differenced series, however, the period of this trend is unclear.
 
 # Model Specification
+
+Based on the preliminary explorations of our original time series and the differenced series, the candidate models are have in mind are an AR(1) process or some type of seasonal model (period 4?) based on either the original or differenced series.
+
+In order to validate these candidate models, determine the period of possible seasonal trends, and compare them to one another we turn to the EACF and the best subsets methods.
 
 ```{r, echo=FALSE}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
+```
+
+While the EACF for the original (non-differenced) time series is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
+
+
+```{r, echo=FALSE}
 sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
 ```
 
-While the EACF is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
-
 
 ```{r}
-diffs = (savings-zlag(savings))[2:78]
 eacf(diffs)
 sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
