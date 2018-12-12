@@ -1,5 +1,5 @@
 ---
-title: "Personal Savings Analysis - Rough Draft"
+title: "Personal Savings Analysis"
 author: "Andrew Brown, Melissa Hooke, Frances Hung, Mai Nguyen, Brenner Ryan"
 date: "11/29/2018"
 output: pdf_document
@@ -10,13 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 require(TSA)
 require(dplyr)
 require(astsa)
+require(stats)
+library(knitr)
 ```
 
 # Time Series Exploration
 
-The orinal time series, as pulled from DataMarket (https://datamarket.com/), spans 26 years of personal savings as percent of disposible income in the US. Each year of the time series is divided into financial quarters, amounting to 104 total observations, which we plot in the time sereies below:
+The original time series, as pulled from DataMarket (https://datamarket.com/), spans 26 years of personal savings as percent of disposible income in the United States. Each year of the time series is divided into financial quarters, amounting to 104 total observations, which we plot in the time series below:
 
-```{r, echo=FALSE, height=3}
+```{r, echo=FALSE, fig.height=4}
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
@@ -25,16 +27,16 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the original time series
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "Percent of Disposible Income", 
+     ylab= "% of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 ```
 
-From our original time series plot, we see that there is a general increasing trend with some sudden volatility in the 70s that may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates, so we have made the decision to remove the last 5 years since it will likely follow a different time series trend than the rest of the data.
+From our original time series plot, we see that there is a general upward trend with some sudden volatility in the 1970s that may be linked to the economic crash in the early 70s and oil energy crisis in 1979. Since the 1970s were marked by high inflation and growing expenses due to rising interest rates, we made the decision to remove the last 5 years of the time sereies since they would likely follow a different time series trend than the rest of the data.
 
 In addition, we set aside the last 6 observations in order to use them as test points to compare with our forecasts at the end of our analysis. The resulting series of 78 observations is plotted below:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,, fig.height=4}
 # set aside points to validate our forecasts
 savings.test = savings[79:84,]
 
@@ -44,7 +46,7 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the shortened time series with labels for quarters
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "Percent of Disposible Income", 
+     ylab= "% of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 abline(lm(savings~time(savings)), col='blue')
@@ -55,7 +57,7 @@ In the time series, we see a general upward trend in the data, which indicates t
 The first step in analyzing our time series is to consider the possible need for a transformation to stabilize the variance of the series over time. In order to do this, we use the function \textsc{BoxCox.ar} to determine the appropriate power transformation for time-series data.
 
 
-```{r,warning=FALSE}
+```{r,warning=FALSE, fig.height=3.5, echo=FALSE}
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
 boxcox$mle
@@ -64,7 +66,8 @@ boxcox$mle
 The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance since $\lambda$ is about equal to 1. Therefore, we proceed by examining the acf and pacf of the series.
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=3.5}
+# plot the acf and pacf of the original series
 acf(savings, lag.max = 25)
 pacf(savings, lag.max = 25)
 ```
@@ -73,20 +76,21 @@ The PACF seems to indicate that an AR(1) process may be a good candidate model b
 
 Next, we consider the differenced time series, which is plotted below:
 
-```{r}
+```{r, fig.height=4, echo=FALSE}
 # calculate the differenced time series
 diffs = (savings-zlag(savings))[2:78]
 
 # plot the differenced time series
 plot(diffs, xlab="Year (by Quarter)", 
-     ylab= "Percent of Disposible Income", 
+     ylab= "% of Disposible Income", 
      main= "Differenced Time Series of Personal Savings in the US (1955-1980)", type="o")
 abline(lm(diffs~time(diffs)), col="blue")
 ```
 
 The plot of the first difference of our time series indicates that the upward trend in the data has been removed and the mean of the differenced series is about equal to zero.
 
-```{r}
+```{r, fig.height=3.5, echo=FALSE}
+# plot the acf and pacf of the differenced time series
 acf(diffs, lag.max = 25)
 pacf(diffs, lag.max = 25)
 ```
@@ -97,86 +101,117 @@ The ACF and PACF of the differenced series appear to suggest a seasonal trend in
 
 Based on the preliminary explorations of our original time series and the differenced series, the candidate models are have in mind are an AR(1) process or some type of seasonal model (period 4?) based on either the original or differenced series.
 
-In order to validate these candidate models, determine the period of possible seasonal trends, and compare them to one another we turn to the EACF and the best subsets methods.
+In order to validate these candidate models and determine the period of possible seasonal trends, we turn to the EACF and the best subsets methods.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=3, fig.width=4}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
+sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(sub)
 ```
 
 While the EACF for the original (non-differenced) time series is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
 
 
-```{r, echo=FALSE}
-sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
-plot(sub)
-```
-
-
-```{r}
+```{r, fig.height=3, fig.width= 4, echo=FALSE}
+# plot the eacf and best subsets for the differenced series
 eacf(diffs)
 sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
 ```
 
-For the differenced series, a seasonal period of 6 is being suggested, which doesn't seem to make much sense.
+For the differenced series, a seasonal trend of 6 is suggested.
 
 
 
 # Model Fitting 
 
-```{r}
+Given the results in the previous section, we have decided to fit and compare 3 different models: an AR(1), a multiplicative $AR(1) \times AR(1)_4$, and an $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model. The parameters for each model are given in the table below:
+
+```{r, echo = FALSE, include=FALSE}
 # fit an AR(1) process
 AR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 0)), method=c('ML'))
 AR1model
 ```
 
-Here are our parameters for the AR(1) model. Given these parameters, the AR(1) model is $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$.
-
-```{r}
+```{r, echo = FALSE, include=FALSE}
 # fit the seasonal model
-SAR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
-SAR1model
+SAR4model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
+SAR4model
 ```
 
-```{r}
-diffs = savings - zlag(savings)
-diffs = diffs[1:78]
-SAR6model = arima(diffs, order = c(0, 0, 0), seasonal = list(order = c(1, 0, 1), period = 6), method=c('ML'))
+```{r, echo = FALSE, include=FALSE}
+SAR6model = arima(savings, order = c(0, 1, 0), seasonal = list(order = c(1, 0, 1), period = 6), method=c('ML'))
 SAR6model
 ```
+ ```
+ \begin{table}[]
+ \begin{tabular}{ c c c c }
+   Model & AR(1) & AR(1) \times SAR(1)_4 & ARI(0,1) \times ARIMA(1,1)_6 \\
+   Intercept & 6.28 & 6.27 & x \\
+   se & 0.35 & 0.35 & x \\
+   \phi_1 & \\
+   se & \\
+   \Phi_1 & \\
+   se & \\
+   \Theta_1 & \\
+   se & \\
+   \sigma^2 & \\
+   log likelihood & \\
+   AIC & 
+ \end{tabular}{ c c c c }
+ \end{table}
+ ```
+```{r}
+table = matrix(c("Model", 'Intercept', 'se', 'ar1', 'se', 'sar1', 'se', 'sma1', 'se',
+          'AR(1)', '6.28','0.35','.83','0.07', 'x','x','x','x',
+         'AR(1)XSAR(1)4', '6.27','0.35','0.86','0.06','-0.28','0.12','x','x',
+         '','x','x','x','x','-0.18','0.38','-0.08','0.38'),
+          nrow=9, ncol=4)
+kable(table)
+```
 
 
-And here are the parameters for the multiplicative seasonal model. Given these parameters, the seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
+The AR(1) model is $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$.
 
+The $AR(1) \times AR(1)_4$ seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
 
+The $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ differenced seasonal model is 
 
 # Diagnostics
 
 These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
 
-```{r}
+```{r, echo = FALSE}
+# run some general diagnostics on the models
 tsdiag(AR1model)
-tsdiag(SAR1model)
+tsdiag(SAR4model)
 tsdiag(SAR6model)
 ```
 
-```{r}
+```{r, echo = FALSE, fig.height=3.5, fig.width=3.5}
 ARresids = rstandard(AR1model)
-SARresids = rstandard(SAR1model)
+SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
 
+# plot the residuals for normality
 qqnorm(ARresids)
-qqnorm(SARresids)
+qqnorm(SAR4resids)
 qqnorm(SAR6resids)
+```
 
+```{r, echo = FALSE}
+# test the residuals for normality
 shapiro.test(ARresids)
-shapiro.test(SARresids)
+shapiro.test(SAR4resids)
 shapiro.test(SAR6resids)
+```
 
+```{r, echo = FALSE}
+# test the residuals for independence
 runs(ARresids)
-runs(SARresids)
-#runs(SAR6resids)
+runs(SAR4resids)
+runs(SAR6resids)
 ```
 
 
@@ -185,19 +220,25 @@ runs(SARresids)
 
 
 
-```{r}
+```{r, fig.height=3, echo=FALSE}
 sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 0, D = 0, Q = 0, S = 0)
 points(79:84,savings.test, col="blue")
 ```
 
-```{r}
+```{r, fig.height=3, echo=FALSE}
 sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 1, D = 0, Q = 0, S = 4)
 points(79:84,savings.test, col="blue")
 ```
 
+```{r, fig.height=3, echo=FALSE}
+sarima.for(savings,n.ahead = 6, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
+points(79:84,savings.test, col="blue")
+```
+
+
 # Appendix: R Code
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, fig.height=4}
 # load the time series
 savings = read.csv("savings.csv",header=TRUE, nrows=104)
 savings = savings %>% select(2)
@@ -206,13 +247,12 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the original time series
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "Percent of Disposible Income", 
+     ylab= "% of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
-abline(mean(savings),0)
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE,, fig.height=4}
 # set aside points to validate our forecasts
 savings.test = savings[79:84,]
 
@@ -222,9 +262,10 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the shortened time series with labels for quarters
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "Percent of Disposible Income", 
+     ylab= "% of Disposible Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
+abline(lm(savings~time(savings)), col='blue')
 ```
 
 ```{r,warning=FALSE, eval=FALSE}
@@ -234,10 +275,27 @@ boxcox
 boxcox$mle
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, fig.height=3.5}
 # plot the acf and pacf of the original series
-acf(savings, lag.max = 20)
-pacf(savings, lag.max = 20)
+acf(savings, lag.max = 25)
+pacf(savings, lag.max = 25)
+```
+
+```{r, fig.height=4, eval=FALSE}
+# calculate the differenced time series
+diffs = (savings-zlag(savings))[2:78]
+
+# plot the differenced time series
+plot(diffs, xlab="Year (by Quarter)", 
+     ylab= "% of Disposible Income", 
+     main= "Differenced Time Series of Personal Savings in the US (1955-1980)", type="o")
+abline(lm(diffs~time(diffs)), col="blue")
+```
+
+```{r, fig.height=3.5, eval=FALSE}
+# plot the acf and pacf of the differenced time series
+acf(diffs, lag.max = 25)
+pacf(diffs, lag.max = 25)
 ```
 
 ```{r, eval=FALSE}
@@ -246,3 +304,50 @@ eacf(savings)
 sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
 ```
+
+```{r, fig.height=3, eval=FALSE}
+# plot the eacf and best subsets for the differenced series
+eacf(diffs)
+sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
+plot(sub)
+```
+
+```{r, eval = FALSE}
+# fit an AR(1) process
+AR1model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 0)), method=c('ML'))
+AR1model
+```
+
+```{r, eval = FALSE, include=FALSE}
+# fit the seasonal model
+SAR4model = arima(savings, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 4), method=c('ML'))
+SAR4model
+```
+
+```{r, eval = FALSE, include=FALSE}
+# fit the differenced seasonal model
+SAR6model = arima(savings, order = c(0, 1, 0), seasonal = list(order = c(1, 0, 1), period = 6), method=c('ML'))
+SAR6model
+```
+
+```{r, eval = FALSE}
+# run some general diagnostics on the models
+tsdiag(AR1model)
+tsdiag(SAR4model)
+tsdiag(SAR6model)
+```
+
+```{r, eval = FALSE}
+# test the residuals for normality
+shapiro.test(ARresids)
+shapiro.test(SAR4resids)
+shapiro.test(SAR6resids)
+```
+
+```{r, eval = FALSE}
+# test the residuals for independence
+runs(ARresids)
+runs(SAR4resids)
+runs(SAR6resids)
+```
+
