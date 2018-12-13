@@ -180,14 +180,26 @@ The $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ differenced seasonal model is
 
 # Diagnostics
 
-These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
+These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. We check residual normality and independence to see if any of our models show abnormalities. 
 
+##AR(1)
 ```{r, echo = FALSE}
 # run some general diagnostics on the models
 tsdiag(AR1model)
+```
+The residuals for the AR(1) model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is borderline significant for higher lags. This indicates possible dependence among residuals.
+
+##$AR(1)xAR(1)_4$
+```{r}
 tsdiag(SAR4model)
+```
+The residuals for the $AR(1)xAR(1)_4$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
+
+##$ARIMA(0,1,0) \times ARIMA(1,0,1)_6$
+```{r}
 tsdiag(SAR6model)
 ```
+The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
 ```{r, echo = FALSE, fig.height=3.5, fig.width=3.5}
 ARresids = rstandard(AR1model)
@@ -195,9 +207,9 @@ SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
 
 # plot the residuals for normality
-qqnorm(ARresids)
-qqnorm(SAR4resids)
-qqnorm(SAR6resids)
+qqnorm(ARresids); qqline(ARresids)
+qqnorm(SAR4resids); qqline(SAR4resids)
+qqnorm(SAR6resids); qqline(SAR4resids)
 ```
 
 ```{r, echo = FALSE}
@@ -206,6 +218,7 @@ shapiro.test(ARresids)
 shapiro.test(SAR4resids)
 shapiro.test(SAR6resids)
 ```
+Based on their Q-Q plots and their Shapiro-Wilk tests, all models don't show evidence of residual nonnormality.  
 
 ```{r, echo = FALSE}
 # test the residuals for independence
@@ -213,8 +226,9 @@ runs(ARresids)
 runs(SAR4resids)
 runs(SAR6resids)
 ```
+Our runs tests support the Ljung-Box tests, which indicated that there is no sufficient evidence to reject residual independence.
 
-
+Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
 
 # Forecasting
 
