@@ -185,19 +185,23 @@ These two models are almost indistinguishable in terms of error. The AR(1) model
 ##AR(1)
 ```{r, echo = FALSE}
 # run some general diagnostics on the models
+par(oma=c(0,0,2,0))
 tsdiag(AR1model)
+title("AR(1)", outer = TRUE)
 ```
 The residuals for the AR(1) model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is borderline significant for higher lags. This indicates possible dependence among residuals.
 
-##$AR(1)xAR(1)_4$
 ```{r}
+par(oma=c(0,0,2,0))
 tsdiag(SAR4model)
+title("AR(1) and Seasonal AR(1) with Period 4", outer = TRUE)
 ```
 The residuals for the $AR(1)xAR(1)_4$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
-##$ARIMA(0,1,0) \times ARIMA(1,0,1)_6$
 ```{r}
+par(oma=c(0,0,2,0))
 tsdiag(SAR6model)
+title("ARIMA(0,1,0) and Seasonal ARIMA(1,0,1) with Period 6", outer = TRUE)
 ```
 The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
@@ -207,9 +211,9 @@ SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
 
 # plot the residuals for normality
-qqnorm(ARresids); qqline(ARresids)
-qqnorm(SAR4resids); qqline(SAR4resids)
-qqnorm(SAR6resids); qqline(SAR4resids)
+qqnorm(ARresids,main="AR(1) residuals"); qqline(ARresids)
+qqnorm(SAR4resids,main="SAR4 residuals"); qqline(SAR4resids)
+qqnorm(SAR6resids,main="SAR6 residuals"); qqline(SAR4resids)
 ```
 
 ```{r, echo = FALSE}
@@ -220,12 +224,22 @@ shapiro.test(SAR6resids)
 ```
 Based on their Q-Q plots and their Shapiro-Wilk tests, all models don't show evidence of residual nonnormality.  
 
+AR(1)
 ```{r, echo = FALSE}
 # test the residuals for independence
 runs(ARresids)
+```
+
+SAR4
+```{r}
 runs(SAR4resids)
+```
+
+SAR6
+```{r}
 runs(SAR6resids)
 ```
+
 Our runs tests support the Ljung-Box tests, which indicated that there is no sufficient evidence to reject residual independence.
 
 Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
