@@ -72,7 +72,7 @@ acf(savings, lag.max = 25)
 pacf(savings, lag.max = 25)
 ```
 
-The PACF seems to indicate that an AR(1) process may be a good candidate model because the only non-zero sample partial autocorrelation is at lag $k=1$. For lags $k \geq 1$, the partial autocorrelations appear to reduce to white-noise.
+The ACF starts out large and then slowly decreases until it ends up within the white noise bounds. This kind of behavior is usually seen in ARMA and AR models. Looking at the PACF could give us more information about the nature of our data. The PACF seems to indicate that an AR(1) process may be a good candidate model because the only non-zero sample partial autocorrelation is at lag $k=1$. For lags $k \geq 1$, the partial autocorrelations appear to reduce to white-noise.
 
 Next, we consider the differenced time series, which is plotted below:
 
@@ -110,7 +110,7 @@ sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-While the EACF for the original (non-differenced) time series is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
+While the EACF for the original (non-differenced) time series is inconclusive, this is not a concern.  EACF is often inconclusive and not the best way of determining a useful model. The best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
 
 
 ```{r, fig.height=3, fig.width= 4, echo=FALSE}
@@ -120,7 +120,7 @@ sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-For the differenced series, a seasonal trend of 6 is suggested.
+The EACF for the differenced series also seemed to be inconclusive, and the best subsets method indicated a trend with a seasonal period of 6.
 
 
 
