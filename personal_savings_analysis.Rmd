@@ -8,7 +8,7 @@ output:
     df_print: paged
 ---
 
-Abstract: \textit{This paper explores personal savings data in the United States from 1955 - 1980; a span of 26 years. We first examined the trend of our data by using various time series analysis tools such as model specification, model fitting and diagnostics of our fitted models. Through these in-depth analyses, we found three candidate models: $AR(1)$, $AR(1) \times AR(1)_4$, and $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. Further examination concluded that $AR(1) \times AR(1)_4$ is the most fitting model for the data set. With this model, we are able to form a greater understanding of personal savings data, gain insights into the U.S.’s economic performance and perform predictions on future savings rates.}
+Abstract: \textit{This paper explores personal savings data in the United States from 1955 - 1980; a span of 26 years. First, we examined the trend of our data by using various time series analysis tools such as model specification and model fitting. Through these in-depth analyses, we found three candidate models: $AR(1)$, $AR(1) \times AR(1)_4$, and $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. Further examination and diagnostic analysis of the three models, we concluded that an $AR(1) \times AR(1)_4$ was the most appropriate model for the data set. With this finding, we were able to create a forecast of the U.S. personal savings rate. These analyses allowed us to form a greater understanding of personal savings data, gain insights into the U.S.’s economic performance and perform predictions on future savings rates.}
 
 \newpage
 
@@ -19,6 +19,8 @@ require(dplyr)
 require(astsa)
 require(stats)
 library(knitr)
+library(ggplot2)
+library(ggthemes)
 ```
 
 # Introduction
@@ -38,7 +40,7 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the original time series
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "% of Disposible Income", 
+     ylab= "% of Disposable Income", 
      main= "Time Series of Personal Savings in the US (1955-1980)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 ```
@@ -57,7 +59,7 @@ savings<-ts(savings, start=c(1955),frequency=4)
 
 # plot the shortened time series with labels for quarters
 plot(savings, xlab="Year (by Quarter)", 
-     ylab= "% of Disposible Income", 
+     ylab= "% of Disposable Income", 
      main= "Time Series of Personal Savings in the US (1955-1974)")
 points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=.75)
 abline(lm(savings~time(savings)), col='blue')
@@ -119,22 +121,25 @@ In order to validate these candidate models and determine the period of possible
 
 
 
-```{r, echo=FALSE, fig.height=3, fig.width=4,fig.show='hold',fig.align='center'}
+```{r, echo=FALSE, fig.height=3, fig.width=4,fig.show='hold',fig.align='center', eval=FALSE}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
 sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
 ```
+\includegraphics{original.png}
 
 While the EACF for the original (non-differenced) time series is inconclusive, the best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
 
 
-```{r, fig.height=3, fig.width= 4, echo=FALSE}
+```{r, fig.height=3, fig.width= 4, echo=FALSE, eval=FALSE}
 # plot the eacf and best subsets for the differenced series
 eacf(diffs)
 sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols') 
 plot(sub)
 ```
+
+\includegraphics{differenced.png}
 
 For the differenced series, a seasonal trend of 6 is suggested.
 
@@ -215,11 +220,11 @@ SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
 
 # plot the residuals for normality
-qqnorm(ARresids,main="AR(1) residuals",
+qqnorm(ARresids,main="AR(1) Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(ARresids)
-qqnorm(SAR4resids,main="SAR4 residuals",
+qqnorm(SAR4resids,main="Seasonal 4 Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
-qqnorm(SAR6resids,main="SAR6 residuals",
+qqnorm(SAR6resids,main="Differenced Seasonal 6 Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
 ```
 
@@ -263,21 +268,33 @@ Our runs tests support the Ljung-Box tests, which indicated that there is no suf
 # Forecasting
 
 
+```{r,include=FALSE, echo=FALSE}
+forecasts = sarima.for(savings,n.ahead = 6, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
+Standard_error=c(rep(0,78),forecasts$se)
+preds = forecasts$pred
+actuals = c(rep(NA,78),savings.test)
+is.pred = as.factor(c(rep("No",78),rep("Yes",6)))
+savings.df = as.data.frame(cbind(seq(1955,1975.75,by=.25),c(savings, preds),is.pred, actuals))
+names(savings.df) = c("Time", "Savings","ispred", "actuals")
+``` 
 
-```{r, fig.height=3, echo=FALSE}
-sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 0, D = 0, Q = 0, S = 0)
-points(79:84,savings.test, col="blue")
+```{r, echo=FALSE, warning=FALSE}
+ggplot(savings.df, aes(x = Time, y = Savings)) +
+       geom_point(aes(color=is.pred)) + geom_line(aes(color=is.pred)) +
+       geom_ribbon(aes(ymin = Savings - Standard_error,
+                       ymax = Savings + Standard_error), alpha = 0.2) +
+  geom_ribbon(aes(ymin = Savings - 2*Standard_error,
+                       ymax = Savings + 2*Standard_error), alpha = 0.2) +
+  geom_point(aes(x=Time,y=actuals)) +theme_classic() + theme(legend.position="none") +
+  scale_color_manual(values=c("black", "red", "blue")) + 
+  xlab("Year (by Quarter)") + 
+  ylab("% of Disposable Income") +
+  ggtitle("Time Series of Personal Savings with Forecasts (1955-1975)")
+  
 ```
 
-```{r, fig.height=3, echo=FALSE}
-sarima.for(savings,n.ahead = 6, 1, 0, 0, P = 1, D = 0, Q = 0, S = 4)
-points(79:84,savings.test, col="blue")
-```
 
-```{r, fig.height=3, echo=FALSE}
-sarima.for(savings,n.ahead = 6, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
-points(79:84,savings.test, col="blue")
-```
+# Discussion
 
 
 # Appendix: R Code
@@ -316,7 +333,6 @@ abline(lm(savings~time(savings)), col='blue')
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
 boxcox
-boxcox$mle
 ```
 
 ```{r, eval=FALSE, fig.height=3.5}
