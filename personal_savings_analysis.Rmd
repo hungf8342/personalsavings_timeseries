@@ -1,8 +1,10 @@
 ---
+
 title: "Personal Savings Analysis"
 author: "Andrew Brown, Melissa Hooke, Frances Hung, Mai Nguyen, Brenner Ryan"
 date: "12/19/2018"
 output: pdf_document
+
 ---
 
 Abstract: \textit{This paper explores personal savings data in the United States from 1955 - 1980; a span of 26 years. We first examined the trend of our data by using various time series analysis tools such as model specification, model fitting and diagnostics of our fitted models. Through these in-depth analyses, we found three candidate models: $AR(1)$, $AR(1) \times AR(1)_4$, and $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. Further examination concluded that $AR(1) \times AR(1)_4$ is the most fitting model for the data set. With this model, we are able to form a greater understanding of personal savings data, gain insights into the U.S.’s economic performance and perform predictions on future savings rates.}
