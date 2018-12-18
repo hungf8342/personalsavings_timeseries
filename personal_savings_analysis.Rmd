@@ -113,7 +113,7 @@ The ACF and PACF of the differenced series appear to suggest a seasonal trend in
 
 # Model Specification
 
-Based on the preliminary explorations of our original time series and the differenced series, the candidate models are have in mind are an AR(1) process or some type of seasonal model (period 4?) based on either the original or differenced series.
+Based on the preliminary explorations of our original time series and the differenced series, the candidate models we have in mind are an AR(1) process or some type of seasonal model based on either the original or differenced series. We suspect that a seasonal model for the original series would have a seasonality of 4, but we are not sure if this seasonality will be retained in the differenced series.
 
 In order to validate these candidate models and determine the period of possible seasonal trends, we turn to the EACF and the best subsets methods.
 
@@ -126,7 +126,7 @@ sub = armasubsets(y=savings,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-While the EACF for the original (non-differenced) time series is inconclusive, this is not a concern.  EACF is often inconclusive and not the best way of determining a useful model. The best subsets method indicates that, an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
+While the EACF for the original (non-differenced) time series is inconclusive, this is not a concern.  EACF is often inconclusive and not the best way of determining a useful model. We now look at the best subsets method, which indicates that an AR(1) process or a multiplicative $AR(1) \times AR(1)_4$ with a seasonal period of 4 are good candidate models.
 
 
 ```{r, fig.height=3, fig.width= 4, echo=FALSE}
@@ -136,7 +136,7 @@ sub = armasubsets(y=diffs,nar=7,nma=7, y.name='test', ar.method='ols')
 plot(sub)
 ```
 
-The EACF for the differenced series also seemed to be inconclusive, and the best subsets method indicated a trend with a seasonal period of 6.
+The EACF for the differenced series also seemed to be inconclusive, and the best subsets method indicated a trend with a seasonal period of 6.  This is curious, as seasonality should theoretically be retained across a first difference.  There are a couple factors we think could be contributing to this change in seasonal period.  First is that a seasonal model with a period of 4 does not perfectly capture our original data. If our original data is far off enough from a true seasonal 4 model, then the first difference could have an entirely different seasonality.  The second factor is that our model includes an autoregressive component, which could also affect the first differencing process.
 
 
 
