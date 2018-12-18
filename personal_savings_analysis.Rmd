@@ -71,7 +71,7 @@ The first step in analyzing our time series is to consider the possible need for
 ```{r,warning=FALSE, fig.height=3.5, echo=FALSE}
 # should we do a transformation?
 boxcox = BoxCox.ar(savings)
-boxcox$mle
+title("Box Cox Plot", outer = FALSE)
 ```
 
 The Boxcox output indicates that a transformation is not necessary in order to stabilize the variance since $\lambda$ is about equal to 1. Therefore, we proceed by examining the acf and pacf of the series.
@@ -79,8 +79,8 @@ The Boxcox output indicates that a transformation is not necessary in order to s
 
 ```{r, echo=FALSE, fig.height=3.5}
 # plot the acf and pacf of the original series
-acf(savings, lag.max = 25)
-pacf(savings, lag.max = 25)
+acf(savings, lag.max = 25, main="ACF of Savings Time Series")
+pacf(savings, lag.max = 25, main="PACF of Savings Time Series")
 ```
 
 The PACF seems to indicate that an AR(1) process may be a good candidate model because the only non-zero sample partial autocorrelation is at lag $k=1$. For lags $k \geq 1$, the partial autocorrelations appear to reduce to white-noise.
@@ -94,7 +94,8 @@ diffs = (savings-zlag(savings))[2:78]
 # plot the differenced time series
 plot(diffs, xlab="Year (by Quarter)", 
      ylab= "% of Disposible Income", 
-     main= "Differenced Time Series of Personal Savings in the US (1955-1980)", type="o")
+     main= "Differenced Time Series of Personal Savings in the US (1955-1974)",
+     type="o", cex.main=.9)
 abline(lm(diffs~time(diffs)), col="blue")
 ```
 
@@ -102,11 +103,13 @@ The plot of the first difference of our time series indicates that the upward tr
 
 ```{r, fig.height=3.5, echo=FALSE}
 # plot the acf and pacf of the differenced time series
-acf(diffs, lag.max = 25)
-pacf(diffs, lag.max = 25)
+acf(diffs, lag.max = 25, main="ACF of Differenced Savings Time Series")
+pacf(diffs, lag.max = 25, main= "PACF of Differenced Savings Time Series")
 ```
 
 The ACF and PACF of the differenced series appear to suggest a seasonal trend in the differenced series, however, the period of this trend is unclear.
+
+\newpage
 
 # Model Specification
 
@@ -155,46 +158,32 @@ SAR4model
 SAR6model = arima(savings, order = c(0, 1, 0), seasonal = list(order = c(1, 0, 1), period = 6), method=c('ML'))
 SAR6model
 ```
- ```
- \begin{table}[]
- \begin{tabular}{ c c c c }
-   Model & AR(1) & AR(1) \times SAR(1)_4 & ARI(0,1) \times ARIMA(1,1)_6 \\
-   Intercept & 6.28 & 6.27 & x \\
-   se & 0.35 & 0.35 & x \\
-   \phi_1 & \\
-   se & \\
-   \Phi_1 & \\
-   se & \\
-   \Theta_1 & \\
-   se & \\
-   \sigma^2 & \\
-   log likelihood & \\
-   AIC & 
- \end{tabular}{ c c c c }
- \end{table}
- ```
-```{r}
-table = matrix(c("Model", 'Intercept', 'se', 'ar1', 'se', 'sar1', 'se', 'sma1', 'se',
-          'AR(1)', '6.28','0.35','.83','0.07', 'x','x','x','x',
-         'AR(1)XSAR(1)4', '6.27','0.35','0.86','0.06','-0.28','0.12','x','x',
-         '','x','x','x','x','-0.18','0.38','-0.08','0.38'),
-          nrow=9, ncol=4)
+
+```{r,echo=FALSE}
+table = rbind(c("AR(1)",'6.28','0.35','.83','0.07', 'x','x','x','x',.336,-68.71,141.43),
+          c("Seasonal 4",'6.27','0.35','0.86','0.06','-0.28','0.12','x','x',.3198,-66.87,139.75),
+         c("Seasonal 6",'x','x','x','x','-0.18','0.38','-0.08','0.38',.3402,-67.96,139.92))
+colnames(table) = c('Model','Intercept', 'se', 'ar1', 'se', 'sar1', 'se', 'sma1', 'se', 'sigma^2','log likelihood', 'aic')
 kable(table)
 ```
 
+Thus the equations of our 3 models are:
 
-The AR(1) model is $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$.
+\begin{enumerate}
+\item AR(1): $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$
+\item $AR(1) \times AR(1)_4$: $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
+\item $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$: $Y_t$
+\end{enumerate}
 
-The $AR(1) \times AR(1)_4$ seasonal model is given by $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
 
-The $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ differenced seasonal model is 
+
 
 # Diagnostics
+Given the output from fitting the three models, we see that different error criterion point us to different model selections. While, the AR(1) model has the lowest BIC, but the seasonal model with a period of 4 has a lower standard error and AIC. Meanwhile the differenced seasonal model with a period of 6 has a similar AIC to the seasonal 4 model, but has the highest standard error. Thus, we turn to residual analysis to see if any of our models show abnormalities. 
 
-These two models are almost indistinguishable in terms of error. The AR(1) model has a higher AIC and BIC, but the seasonal model has a standard error, and none of the differences between the two models are substantial. We check residual normality and independence to see if any of our models show abnormalities. 
+In our residual analysis we are looking for 3 things: residual nonnormality, residual dependence, and residual structure. The presence of any of these 3 things may indicate that our model has not sufficiently identified the structure of the data and is not an adequate model.
 
-##AR(1)
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=7}
 # run some general diagnostics on the models
 par(oma=c(0,0,2,0))
 tsdiag(AR1model)
@@ -202,60 +191,72 @@ title("AR(1)", outer = TRUE)
 ```
 The residuals for the AR(1) model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is borderline significant for higher lags. This indicates possible dependence among residuals.
 
-```{r}
+
+```{r,echo=FALSE, , fig.height=7}
 par(oma=c(0,0,2,0))
 tsdiag(SAR4model)
 title("AR(1) and Seasonal AR(1) with Period 4", outer = TRUE)
 ```
 The residuals for the $AR(1)xAR(1)_4$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
-```{r}
+
+```{r, echo=FALSE, fig.height=7}
 par(oma=c(0,0,2,0))
 tsdiag(SAR6model)
 title("ARIMA(0,1,0) and Seasonal ARIMA(1,0,1) with Period 6", outer = TRUE)
 ```
 The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
-```{r, echo = FALSE, fig.height=3.5, fig.width=3.5}
+```{r, echo = FALSE, fig.height=3.25, fig.width=3.25}
 ARresids = rstandard(AR1model)
 SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
 
 # plot the residuals for normality
-qqnorm(ARresids,main="AR(1) residuals"); qqline(ARresids)
-qqnorm(SAR4resids,main="SAR4 residuals"); qqline(SAR4resids)
-qqnorm(SAR6resids,main="SAR6 residuals"); qqline(SAR4resids)
+qqnorm(ARresids,main="AR(1) residuals",
+       cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(ARresids)
+qqnorm(SAR4resids,main="SAR4 residuals",
+       cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
+qqnorm(SAR6resids,main="SAR6 residuals",
+       cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
 ```
 
-```{r, echo = FALSE}
+#Shapiro-Wilks Test
+```{r, echo=FALSE}
+table = cbind(c('W','p-value'),c(.981,.295),c(.983,.369),c(.979,.237))
+colnames(table)=c('Model','AR(1)','Seasonal 4','Seasonal 6')
+kable(table)
+```
+
+```{r, echo = FALSE,eval=FALSE}
 # test the residuals for normality
 shapiro.test(ARresids)
 shapiro.test(SAR4resids)
 shapiro.test(SAR6resids)
 ```
-Based on their Q-Q plots and their Shapiro-Wilk tests, all models don't show evidence of residual nonnormality.  
 
+Based on their Q-Q plots and their Shapiro-Wilk tests, none of the models show evidence of residual nonnormality.  
 
-```{r, eval = FALSE}
+#Runs Test
+```{r, eval = FALSE, echo=FALSE}
 # test the residuals for independence
 runs(ARresids)
 runs(SAR4resids)
 runs(SAR6resids)
 ```
 
-```{r}
+```{r,echo=FALSE}
 table = cbind(c("p-value","Observed runs","Expected runs", "n1","n2","k"),
-              c(0.73, 42, 29.97, 38, 40, 0),
-              c(0.37,44,39.59,35,43,0),
-              c(0.18,45,38.74,32,46,0))
-colnames(table) = c("Runs Test","AR(1)","Seasonal 4","Seasonal 6")
+              c(0.73, 42, 30, 38, 40, 0),
+              c(0.37,44,40,35,43,0),
+              c(0.18,45,39,32,46,0))
+colnames(table) = c("Model","AR(1)","Seasonal 4","Seasonal 6")
 kable(table)
 ```
 
 
 Our runs tests support the Ljung-Box tests, which indicated that there is no sufficient evidence to reject residual independence.
 
-Our error measurements don't give us much insight into which model is best, so we should turn to forecasting to see which model is more accurate in predicting future terms.
 
 # Forecasting
 
