@@ -117,6 +117,8 @@ Based on the preliminary explorations of our original time series and the differ
 
 In order to validate these candidate models and determine the period of possible seasonal trends, we turn to the EACF and the best subsets methods.
 
+
+
 ```{r, echo=FALSE, fig.height=3, fig.width=4,fig.show='hold',fig.align='center'}
 # use the eacf and best subsets to find a candidate model
 eacf(savings)
