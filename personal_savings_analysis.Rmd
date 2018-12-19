@@ -24,11 +24,17 @@ library(ggthemes)
 ```
 
 # Introduction
-The personal savings rate of consumers is one of many indicators of how a country’s economy is performing. Moreover, savings drive long-run economic growth as they provides funds for investment in capital or projects, which then drives future economic growth. Typically, household savings are invested either directly (i.e. when purchasing equity) or indirectly, (i.e. putting it into a bank, which uses those funds for lending) (Carroll and Mowry). These investments lead to economic growth in free-market economies. 
+The personal savings rate of consumers is one of many indicators of how a country’s economy is performing. Moreover, savings drive long-run economic growth as they provides funds for investment in capital or projects, which then drives future economic growth. Typically, household savings are invested either directly (i.e. when purchasing equity) or indirectly, (i.e. putting it into a bank, which uses those funds for lending) (Carroll and Mowry). These investments lead to economic growth in free-market economies. Additionally, the Harod-Domar Model of economic growth suggests that economic growth rates is driven by the level of savings. The model reasons that increased savings will lead to increased investment which result in higher capital stock, and thus, higher economic growth. 
+
+\vspace{.5in}
+
+\centerline{\includegraphics[width=10cm]{hd.jpg}}
+
+\vspace{.5in}
 
 To understand the factors that influence personal savings rate, it is helpful to know how the savings rate is calculated. Personal savings can be understood as one minus the ratio of personal outlays (spending) to disposable income (personal income minus personal taxes). This calculation is expressed in the formula below. 
 
-$$\text{Personal Savings Rate (%)}=100 \times (1-\frac{\text{Personal Outlays}}{\text{Personal Income - Personal Taxes}})$$
+$$\text{Personal Savings Rate (\%)}=100 \times (1-\frac{\text{Personal Outlays}}{\text{Personal Income - Personal Taxes}})$$
 
 Moreover, this shows that an increase in the personal savings rate can be associated with one of the following factors: increase in personal income, decrease in personal outlays, or decrease in personal taxes.( Carroll and Mowry)
 
