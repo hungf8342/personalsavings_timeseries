@@ -290,15 +290,18 @@ Our runs tests support the Ljung-Box tests, which indicated that there is no suf
 
 In our previous section, we concluded that the best model for our series is an $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. We now want to predict the values of the series at future times. This forecast will enable us to gain insights into the direction of which the savings rate is headed as well as the future health of the economy. 
 
-We forecasted our model with a built-in forecast ARIMA function in R. The red line signifies the forecasted values with a confidence bound of one standard error in darker grey and of two standard errors in lighter grey. We observed that the forecasted values increase at first and then slowly begin to decay. Additionally, the forecasted values generally maintain the previous seasonal pattern and its upward trend. Our forecasted values stay within one standard deviation from our actual values, which shows that our forecasts are a good prediction of our data. 
+We forecasted our model with a built-in forecast ARIMA function in R. The red line signifies the forecasted values with a confidence bound of one standard error in darker grey and of two standard errors in lighter grey. We observed that the forecasted values increase at first and then decay back to the upward linear trend. Additionally, the forecasted values generally maintain the previous seasonal pattern. 
+
+Comparing the actual values of the time series which we set aside as test points, the next 6 points in the time series remain within one standard deviations of our forecasted values, which shows that our forecasts are a good prediction of our data. However, after that point since we cut off the last 5 years of our data due to economic volatility, it is likely that the predictions would not be quite as accurate, as with predicting far into the future for any time series.
+
 
 ```{r,include=FALSE, echo=FALSE}
-forecasts = sarima.for(savings,n.ahead = 6, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
+forecasts = sarima.for(savings,n.ahead = 10, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
 Standard_error=c(rep(0,78),forecasts$se)
 preds = forecasts$pred
 actuals = c(rep(NA,78),savings.test)
-is.pred = as.factor(c(rep("No",78),rep("Yes",6)))
-savings.df = as.data.frame(cbind(seq(1955,1975.75,by=.25),c(savings, preds),is.pred, actuals))
+is.pred = as.factor(c(rep("No",78),rep("Yes",10)))
+savings.df = as.data.frame(cbind(seq(1955,1976.75,by=.25),c(savings, preds),is.pred, actuals))
 names(savings.df) = c("Time", "Savings","ispred", "actuals")
 ``` 
 
@@ -317,7 +320,6 @@ ggplot(savings.df, aes(x = Time, y = Savings)) +
   
 ```
 
-Our analysis concludes that the savings rate will decrease in the near future time points as predicted by the model. However, our analysis also supports a general upward trend of the savings rate. This suggests that the economy is heading towards a temporary cyclical trend of choosing short-term consumption over long-term investment, but generally, savings rates are growing. A continuation of this temporary downward trend can indicate a looming economic stagnation. We hope that our analysis will help indicate when the savings rate becomes abnormally low or high compared to our forecasts, which may be a sign of impending economic trouble.
 
 \newpage
 
@@ -325,9 +327,11 @@ Our analysis concludes that the savings rate will decrease in the near future ti
 
 The goal of the present analysis on the personal savings data was to construct a time series model which would adequately capture the savings trends across the data and accurately predict future data points in the years to come. In our analysis, we considered 3 different ARIMA and SARIMA models: a basic AR(1) process, a seasonal model with a period of 4, and a differenced seasonal model with a period of 6. Through our model diagnostics, we settled on the differenced seasonal 6 model as most appropriate model because removing the trend from the time series appeared to sufficiently reduce the series to a white noise process with normal and independent residuals. 
 
-One major challenge that we experienced in choosing our final model was the debate between the seasonal 4 model and the differenced seasonal 6 model. The fact that the data was broken down by financial quarter made the appearance of the seasonal 4 trend enticing. However, we decided that the upward trend in the data was too strong to ignore in the final model of the time series. Differencing the time series as we did in the final chosen model adequately preserved the upward trend in personal savings over time.
+Overall, our analysis concludes that the savings rate will decrease in the near future time points as predicted by the model. However, our analysis also supports a general upward trend of the savings rate. This suggests that the economy is heading towards a temporary cyclical trend of choosing short-term consumption over long-term investment, but generally, savings rates are growing. A continuation of this temporary downward trend can indicate a looming economic stagnation. We hope that our analysis will help indicate when the savings rate becomes abnormally low or high compared to our forecasts, which may be a sign of impending economic trouble.
 
-We acknowledge that our analysis has a few shortcomings. The first one is that we cut off the last 5 years of our data set in order to obtain data with a general upward trend. As a consequence of this, our model does not include nor predict those 5 years of drastically tumbling savings rates. Moreover, our analysis is not generalizable to today’s savings rate because this data was captured 40 years ago. Though our time series provided insights into the past health of the economy, we would also be interested in seeing a similar time series of more current data. If the same seasonal and upward trend is prevalent for today’s data, it would be supportive of economic commonalities which drive savings rate changes back from the 70’s through today.
+One major challenge that we experienced in choosing our final model was the debate between the seasonal 4 model and the differenced seasonal 6 model. The fact that the data was broken down by financial quarter made the appearance of the seasonal 4 trend enticing. However, we decided that the upward trend in the data was too strong to ignore in the final model of the time series. Differencing the time series as we did in the final chosen model adequately preserved the upward trend in personal savings over time. That said, the upward trend in savings cannot increase forever since the savings are expressed as a \textit{percentage} of disposable income. If this rate were to continue indefinitely, that would eventually lead to everyone saving their money and never spending, which would lead to an unhealthy economy. Thus, it makes sense that the upward trend in our data would eventually break down.
+
+We acknowledge that our analysis has a few shortcomings. The first one is that we cut off the last 5 years of our data set due to economic volatility. As a consequence of this, our model does not include nor predict those 5 years of drastically tumbling savings rates. Moreover, our analysis is not generalizable to today’s savings rate because this data was captured 40 years ago. Though our time series provided insights into the past health of the economy, we would also be interested in seeing a similar time series of more current data. If the same seasonal and upward trend is prevalent for today’s data, it would be supportive of economic commonalities which drive savings rate changes back from the 70’s through today. Repetition of the same trend may indicate that our savings economy follows some upward trend until an economic crash, then resets and begins the pattern over again. Of course there are so many variables that go into our decisions to save more or spend more as a society so it is impossible to tell what is actually driving the upward trends and interruptions in that trend.
  
 \newpage
 
