@@ -1,0 +1,582 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Personal Savings Analysis},
+            pdfauthor={Andrew Brown, Melissa Hooke, Frances Hung, Mai Nguyen, Brenner Ryan},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Personal Savings Analysis}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Andrew Brown, Melissa Hooke, Frances Hung, Mai Nguyen, Brenner Ryan}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{12/19/2018}
+
+
+\begin{document}
+\maketitle
+
+Abstract:
+\textit{This paper explores personal savings data in the United States from 1955 - 1980; a span of 26 years. We first examined the trend of our data by using various time series analysis tools such as model specification, model fitting and diagnostics of our fitted models. Through these in-depth analyses, we found three candidate models: $AR(1)$, $AR(1) \times AR(1)_4$, and $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. Further examination concluded that $AR(1) \times AR(1)_4$ is the most fitting model for the data set. With this model, we are able to form a greater understanding of personal savings data, gain insights into the U.S.’s economic performance and perform predictions on future savings rates.}
+
+\newpage
+
+\section{Introduction}\label{introduction}
+
+The personal savings rate of consumers is one of many indicators of how
+a country's economy is performing. Moreover, savings drive long-run
+economic growth as they provides funds for investment in capital or
+projects, which then drives future economic growth. Typically, household
+savings are invested either directly (i.e.~when purchasing equity) or
+indirectly, (i.e.~putting it into a bank, which uses those funds for
+lending) (Carroll and Mowry). These investments lead to economic growth
+in free-market economies.
+
+To understand the factors that influence personal savings rate, it is
+helpful to know how the savings rate is calculated. Personal savings can
+be understood as one minus the ratio of personal outlays (spending) to
+disposable income (personal income minus personal taxes). This
+calculation is expressed in the formula below.
+
+\[\text{Personal Savings Rate (%)}=100 \times (1-\frac{\text{Personal Outlays}}{\text{Personal Income - Personal Taxes}})\]
+
+Moreover, this shows that an increase in the personal savings rate can
+be associated with one of the following factors: increase in personal
+income, decrease in personal outlays, or decrease in personal taxes.(
+Carroll and Mowry)
+
+The personal savings rate typically decreases when individuals spend
+more than they initially save, be it due to inflation, consumer habits,
+or reliance on other financial assets. Because the personal savings rate
+can only go so low, a low rate can be a sign of a looming recession. In
+contrast, after financial crises, consumers are often more cautious and
+tend to raise the personal savings rate. For example, in 2008, personal
+savings rate rose from 1.4 percent to 2.6 percent and in 2009, it
+reached 4.3 percent, highest since 1998. (Carroll and Mowry) This
+increase can be explained by the 2008 recession, after which consumers
+became more cautious with their spending.
+
+Given that saving rates is an indicator of a country's economic
+performance, it is important to explore personal saving rates data in
+order to gain insights on the performance of economy. In this project,
+we are most interested in exploring the U.S. personal savings rate. By
+analyzing past data, we are able to form a mathematical model that will
+allow us to predict, monitor, and control the data. This understanding
+will enable us to take observe the projection of the personal savings
+rate and take precautionary measures to ensure economic growth.
+
+The time series spans over 26 years with each year divided into
+financial quarters, amounting to 104 total observations. From our
+original time series plot, it is difficult to see any obvious seasonal
+trends. However, there seems to be a positive correlation between terms
+close to one another. The general increasing trend and volatility in the
+70s may be linked to the economic crash in the early 70s and oil energy
+crisis in 1979. The 1970's were marked by high inflation and growing
+expenses due to rising interest rates.
+
+\section{Time Series Exploration}\label{time-series-exploration}
+
+The original time series, as pulled from DataMarket
+(\url{https://datamarket.com/}), spans 26 years of personal savings as
+percent of disposible income in the United States. Each year of the time
+series is divided into financial quarters, amounting to 104 total
+observations, which we plot in the time series below:
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+From our original time series plot, we see that there is a general
+upward trend with some sudden volatility in the 1970s that may be linked
+to the economic crash in the early 70s and oil energy crisis in 1979.
+Since the 1970s were marked by high inflation and growing expenses due
+to rising interest rates, we made the decision to remove the last 5
+years of the time sereies since they would likely follow a different
+time series trend than the rest of the data.
+
+In addition, we set aside the last 6 observations in order to use them
+as test points to compare with our forecasts at the end of our analysis.
+The resulting series of 78 observations is plotted below:
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+In the time series, we see a general upward trend in the data, which
+indicates that the time series may not be stationary and we may want to
+consider taking the first difference of the data. Also, while do not see
+any \textit{obvious} seasonal trends, given that the data is divided
+into financial quarters we may want to consider the possibility of
+taking a seasonal difference to make our time series stationary. First,
+however, let's explore without taking the difference.
+
+The first step in analyzing our time series is to consider the possible
+need for a transformation to stabilize the variance of the series over
+time. In order to do this, we use the function \textsc{BoxCox.ar} to
+determine the appropriate power transformation for time-series data.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+The Boxcox output indicates that a transformation is not necessary in
+order to stabilize the variance since \(\lambda\) is about equal to 1.
+Therefore, we proceed by examining the acf and pacf of the series.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-4-1.pdf}
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-4-2.pdf}
+
+The PACF seems to indicate that an AR(1) process may be a good candidate
+model because the only non-zero sample partial autocorrelation is at lag
+\(k=1\). For lags \(k \geq 1\), the partial autocorrelations appear to
+reduce to white-noise.
+
+Next, we consider the differenced time series, which is plotted below:
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+The plot of the first difference of our time series indicates that the
+upward trend in the data has been removed and the mean of the
+differenced series is about equal to zero.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-6-1.pdf}
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-6-2.pdf}
+
+The ACF and PACF of the differenced series appear to suggest a seasonal
+trend in the differenced series, however, the period of this trend is
+unclear.
+
+\newpage
+
+\section{Model Specification}\label{model-specification}
+
+Based on the preliminary explorations of our original time series and
+the differenced series, the candidate models we have in mind are an
+AR(1) process or some type of seasonal model (perhaps period 4) based on
+either the original or differenced series.
+
+In order to validate these candidate models and determine the period of
+possible seasonal trends, we turn to the EACF and the best subsets
+methods.
+
+\begin{verbatim}
+## AR/MA
+##   0 1 2 3 4 5 6 7 8 9 10 11 12 13
+## 0 x x x x o o o o o o o  o  o  o 
+## 1 o x o o o o o o o o o  o  o  o 
+## 2 x x o o o o o o o o o  o  o  o 
+## 3 x x o o o o o o o o o  o  o  o 
+## 4 x o o o o o o o o o o  o  o  o 
+## 5 x x o o o o o x o o o  o  o  o 
+## 6 x o o o o o o o o o o  o  o  o 
+## 7 x o o o o o o o o o o  o  o  o
+\end{verbatim}
+
+\begin{center}\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-7-1} \end{center}
+
+While the EACF for the original (non-differenced) time series is
+inconclusive, the best subsets method indicates that, an AR(1) process
+or a multiplicative \(AR(1) \times AR(1)_4\) with a seasonal period of 4
+are good candidate models.
+
+\begin{verbatim}
+## AR/MA
+##   0 1 2 3 4 5 6 7 8 9 10 11 12 13
+## 0 o o o x o x o o o o o  o  x  o 
+## 1 x o o x o o o o o o o  o  o  o 
+## 2 x x o x o o o o o o o  o  o  o 
+## 3 x x o o o o o o o o o  o  o  o 
+## 4 o x o o o o o x o o o  o  o  o 
+## 5 o x o o o o o o o o o  o  o  o 
+## 6 x x o o o o o o o o o  o  o  o 
+## 7 x o x o o o o o o o o  o  o  o
+\end{verbatim}
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+For the differenced series, a seasonal trend of 6 is suggested.
+
+\section{Model Fitting}\label{model-fitting}
+
+Given the results in the previous section, we have decided to fit and
+compare 3 different models: an AR(1), a multiplicative
+\(AR(1) \times AR(1)_4\), and an \(ARIMA(0,1,0) \times ARIMA(1,0,1)_6\)
+model. The parameters for each model are given in the table below:
+
+\begin{longtable}[]{@{}llllllllllll@{}}
+\toprule
+Model & Intercept & se & ar1 & se & sar1 & se & sma1 & se & sigma\^{}2 &
+log likelihood & aic\tabularnewline
+\midrule
+\endhead
+AR(1) & 6.28 & 0.35 & .83 & 0.07 & x & x & x & x & 0.336 & -68.71 &
+141.43\tabularnewline
+Seasonal 4 & 6.27 & 0.35 & 0.86 & 0.06 & -0.28 & 0.12 & x & x & 0.3198 &
+-66.87 & 139.75\tabularnewline
+Seasonal 6 & x & x & x & x & -0.18 & 0.38 & -0.08 & 0.38 & 0.3402 &
+-67.96 & 139.92\tabularnewline
+\bottomrule
+\end{longtable}
+
+Thus the equations of our 3 models are:
+
+\begin{enumerate}
+\item AR(1): $Y_t-6.28 = .825(Y_{t-1}-6.28) + e_t$
+\item $AR(1) \times AR(1)_4$: $(Y_t-6.27)(1-.861(B-6.27))(1+.228(B-6.27)^4) = e_t$
+\item $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$: $Y_t$
+\end{enumerate}
+
+\section{Diagnostics}\label{diagnostics}
+
+Given the output from fitting the three models, we see that different
+error criterion point us to different model selections. While, the AR(1)
+model has the lowest BIC, but the seasonal model with a period of 4 has
+a lower standard error and AIC. Meanwhile the differenced seasonal model
+with a period of 6 has a similar AIC to the seasonal 4 model, but has
+the highest standard error. Thus, we turn to residual analysis to see if
+any of our models show abnormalities.
+
+In our residual analysis we are looking for 3 things: residual
+nonnormality, residual dependence, and residual structure. The presence
+of any of these 3 things may indicate that our model has not
+sufficiently identified the structure of the data and is not an adequate
+model.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-13-1.pdf}
+The residuals for the AR(1) model resemble a white-noise process, the
+ACF shows no correlation patterns between residuals, and the Ljung-Box
+statistic is borderline significant for higher lags. This indicates
+possible dependence among residuals.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-14-1.pdf}
+The residuals for the \(AR(1)xAR(1)_4\) model resemble a white-noise
+process, the ACF shows no correlation patterns between residuals, and
+the Ljung-Box statistic is not significant for all tested lags.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-15-1.pdf}
+The residuals for the \(ARIMA(0,1,0) \times ARIMA(1,0,1)_6\) model
+resemble a white-noise process, the ACF shows no correlation patterns
+between residuals, and the Ljung-Box statistic is not significant for
+all tested lags.
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-16-1.pdf}
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-16-2.pdf}
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-16-3.pdf}
+
+\section{Shapiro-Wilks Test}\label{shapiro-wilks-test}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Model & AR(1) & Seasonal 4 & Seasonal 6\tabularnewline
+\midrule
+\endhead
+W & 0.981 & 0.983 & 0.979\tabularnewline
+p-value & 0.295 & 0.369 & 0.237\tabularnewline
+\bottomrule
+\end{longtable}
+
+Based on their Q-Q plots and their Shapiro-Wilk tests, none of the
+models show evidence of residual nonnormality.
+
+\section{Runs Test}\label{runs-test}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+Model & AR(1) & Seasonal 4 & Seasonal 6\tabularnewline
+\midrule
+\endhead
+p-value & 0.73 & 0.37 & 0.18\tabularnewline
+Observed runs & 42 & 44 & 45\tabularnewline
+Expected runs & 30 & 40 & 39\tabularnewline
+n1 & 38 & 35 & 32\tabularnewline
+n2 & 40 & 43 & 46\tabularnewline
+k & 0 & 0 & 0\tabularnewline
+\bottomrule
+\end{longtable}
+
+Our runs tests support the Ljung-Box tests, which indicated that there
+is no sufficient evidence to reject residual independence.
+
+\section{Forecasting}\label{forecasting}
+
+\begin{verbatim}
+## $pred
+##          Qtr1     Qtr2     Qtr3     Qtr4
+## 1974                   7.533497 7.313623
+## 1975 7.132218 6.982552 6.859072 6.757196
+## 
+## $se
+##           Qtr1      Qtr2      Qtr3      Qtr4
+## 1974                     0.5796561 0.7514738
+## 1975 0.8487602 0.9090457 0.9478906 0.9734455
+\end{verbatim}
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-21-1.pdf}
+
+\begin{verbatim}
+## $pred
+##          Qtr1     Qtr2     Qtr3     Qtr4
+## 1974                   7.540401 7.216360
+## 1975 7.029013 6.679309 6.633252 6.616476
+## 
+## $se
+##           Qtr1      Qtr2      Qtr3      Qtr4
+## 1974                     0.5654719 0.7461892
+## 1975 0.8558728 0.9288601 0.9465329 0.9594238
+\end{verbatim}
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+\begin{verbatim}
+## $pred
+##          Qtr1     Qtr2     Qtr3     Qtr4
+## 1974                   7.967863 8.269178
+## 1975 8.227219 8.078950 8.077971 7.860737
+## 
+## $se
+##           Qtr1      Qtr2      Qtr3      Qtr4
+## 1974                     0.5819161 0.8229537
+## 1975 1.0079083 1.1638322 1.3012040 1.4253975
+\end{verbatim}
+
+\includegraphics{personal_savings_analysis_files/figure-latex/unnamed-chunk-23-1.pdf}
+
+The forecasting for our model allows us to predict how personal savings
+rates will change in the near future.
+
+\section{Appendix: R Code}\label{appendix-r-code}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# load the time series}
+\NormalTok{savings =}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"savings.csv"}\NormalTok{,}\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{, }\DataTypeTok{nrows=}\DecValTok{104}\NormalTok{)}
+\NormalTok{savings =}\StringTok{ }\NormalTok{savings }\OperatorTok{%>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\NormalTok{savings.entire =}\StringTok{ }\NormalTok{savings[}\DecValTok{1}\OperatorTok{:}\DecValTok{84}\NormalTok{,]}
+\NormalTok{savings<-}\KeywordTok{ts}\NormalTok{(savings, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\DecValTok{1955}\NormalTok{),}\DataTypeTok{frequency=}\DecValTok{4}\NormalTok{)}
+
+\CommentTok{# plot the original time series}
+\KeywordTok{plot}\NormalTok{(savings, }\DataTypeTok{xlab=}\StringTok{"Year (by Quarter)"}\NormalTok{, }
+     \DataTypeTok{ylab=} \StringTok{"% of Disposible Income"}\NormalTok{, }
+     \DataTypeTok{main=} \StringTok{"Time Series of Personal Savings in the US (1955-1980)"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(}\DataTypeTok{y=}\NormalTok{savings,}\DataTypeTok{x=}\KeywordTok{as.vector}\NormalTok{(}\KeywordTok{time}\NormalTok{(savings)),}\DataTypeTok{pch=}\KeywordTok{as.vector}\NormalTok{(}\KeywordTok{season}\NormalTok{(savings)), }\DataTypeTok{cex=}\NormalTok{.}\DecValTok{75}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# set aside points to validate our forecasts}
+\NormalTok{savings.test =}\StringTok{ }\NormalTok{savings[}\DecValTok{79}\OperatorTok{:}\DecValTok{84}\NormalTok{,]}
+
+\CommentTok{# remove the last 5 years because of the huge dip due to recession}
+\NormalTok{savings =}\StringTok{ }\NormalTok{savings[}\DecValTok{1}\OperatorTok{:}\DecValTok{78}\NormalTok{,]}
+\NormalTok{savings<-}\KeywordTok{ts}\NormalTok{(savings, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\DecValTok{1955}\NormalTok{),}\DataTypeTok{frequency=}\DecValTok{4}\NormalTok{)}
+
+\CommentTok{# plot the shortened time series with labels for quarters}
+\KeywordTok{plot}\NormalTok{(savings, }\DataTypeTok{xlab=}\StringTok{"Year (by Quarter)"}\NormalTok{, }
+     \DataTypeTok{ylab=} \StringTok{"% of Disposible Income"}\NormalTok{, }
+     \DataTypeTok{main=} \StringTok{"Time Series of Personal Savings in the US (1955-1980)"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(}\DataTypeTok{y=}\NormalTok{savings,}\DataTypeTok{x=}\KeywordTok{as.vector}\NormalTok{(}\KeywordTok{time}\NormalTok{(savings)),}\DataTypeTok{pch=}\KeywordTok{as.vector}\NormalTok{(}\KeywordTok{season}\NormalTok{(savings)), }\DataTypeTok{cex=}\NormalTok{.}\DecValTok{75}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\KeywordTok{lm}\NormalTok{(savings}\OperatorTok{~}\KeywordTok{time}\NormalTok{(savings)), }\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# should we do a transformation?}
+\NormalTok{boxcox =}\StringTok{ }\KeywordTok{BoxCox.ar}\NormalTok{(savings)}
+\NormalTok{boxcox}
+\NormalTok{boxcox}\OperatorTok{$}\NormalTok{mle}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# plot the acf and pacf of the original series}
+\KeywordTok{acf}\NormalTok{(savings, }\DataTypeTok{lag.max =} \DecValTok{25}\NormalTok{)}
+\KeywordTok{pacf}\NormalTok{(savings, }\DataTypeTok{lag.max =} \DecValTok{25}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# calculate the differenced time series}
+\NormalTok{diffs =}\StringTok{ }\NormalTok{(savings}\OperatorTok{-}\KeywordTok{zlag}\NormalTok{(savings))[}\DecValTok{2}\OperatorTok{:}\DecValTok{78}\NormalTok{]}
+
+\CommentTok{# plot the differenced time series}
+\KeywordTok{plot}\NormalTok{(diffs, }\DataTypeTok{xlab=}\StringTok{"Year (by Quarter)"}\NormalTok{, }
+     \DataTypeTok{ylab=} \StringTok{"% of Disposible Income"}\NormalTok{, }
+     \DataTypeTok{main=} \StringTok{"Differenced Time Series of Personal Savings in the US (1955-1980)"}\NormalTok{, }\DataTypeTok{type=}\StringTok{"o"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\KeywordTok{lm}\NormalTok{(diffs}\OperatorTok{~}\KeywordTok{time}\NormalTok{(diffs)), }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# plot the acf and pacf of the differenced time series}
+\KeywordTok{acf}\NormalTok{(diffs, }\DataTypeTok{lag.max =} \DecValTok{25}\NormalTok{)}
+\KeywordTok{pacf}\NormalTok{(diffs, }\DataTypeTok{lag.max =} \DecValTok{25}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# use the eacf and best subsets to find a candidate model}
+\KeywordTok{eacf}\NormalTok{(savings)}
+\NormalTok{sub =}\StringTok{ }\KeywordTok{armasubsets}\NormalTok{(}\DataTypeTok{y=}\NormalTok{savings,}\DataTypeTok{nar=}\DecValTok{7}\NormalTok{,}\DataTypeTok{nma=}\DecValTok{7}\NormalTok{, }\DataTypeTok{y.name=}\StringTok{'test'}\NormalTok{, }\DataTypeTok{ar.method=}\StringTok{'ols'}\NormalTok{) }
+\KeywordTok{plot}\NormalTok{(sub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# plot the eacf and best subsets for the differenced series}
+\KeywordTok{eacf}\NormalTok{(diffs)}
+\NormalTok{sub =}\StringTok{ }\KeywordTok{armasubsets}\NormalTok{(}\DataTypeTok{y=}\NormalTok{diffs,}\DataTypeTok{nar=}\DecValTok{7}\NormalTok{,}\DataTypeTok{nma=}\DecValTok{7}\NormalTok{, }\DataTypeTok{y.name=}\StringTok{'test'}\NormalTok{, }\DataTypeTok{ar.method=}\StringTok{'ols'}\NormalTok{) }
+\KeywordTok{plot}\NormalTok{(sub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# fit an AR(1) process}
+\NormalTok{AR1model =}\StringTok{ }\KeywordTok{arima}\NormalTok{(savings, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{), }\DataTypeTok{seasonal =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{)), }\DataTypeTok{method=}\KeywordTok{c}\NormalTok{(}\StringTok{'ML'}\NormalTok{))}
+\NormalTok{AR1model}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# run some general diagnostics on the models}
+\KeywordTok{tsdiag}\NormalTok{(AR1model)}
+\KeywordTok{tsdiag}\NormalTok{(SAR4model)}
+\KeywordTok{tsdiag}\NormalTok{(SAR6model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# test the residuals for normality}
+\KeywordTok{shapiro.test}\NormalTok{(ARresids)}
+\KeywordTok{shapiro.test}\NormalTok{(SAR4resids)}
+\KeywordTok{shapiro.test}\NormalTok{(SAR6resids)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# test the residuals for independence}
+\KeywordTok{runs}\NormalTok{(ARresids)}
+\KeywordTok{runs}\NormalTok{(SAR4resids)}
+\KeywordTok{runs}\NormalTok{(SAR6resids)}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

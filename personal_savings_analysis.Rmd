@@ -24,6 +24,19 @@ library(ggthemes)
 ```
 
 # Introduction
+The personal savings rate of consumers is one of many indicators of how a country’s economy is performing. Moreover, savings drive long-run economic growth as they provides funds for investment in capital or projects, which then drives future economic growth. Typically, household savings are invested either directly (i.e. when purchasing equity) or indirectly, (i.e. putting it into a bank, which uses those funds for lending) (Carroll and Mowry). These investments lead to economic growth in free-market economies. 
+
+To understand the factors that influence personal savings rate, it is helpful to know how the savings rate is calculated. Personal savings can be understood as one minus the ratio of personal outlays (spending) to disposable income (personal income minus personal taxes). This calculation is expressed in the formula below. 
+
+$$\text{Personal Savings Rate (%)}=100 \times (1-\frac{\text{Personal Outlays}}{\text{Personal Income - Personal Taxes}})$$
+
+Moreover, this shows that an increase in the personal savings rate can be associated with one of the following factors: increase in personal income, decrease in personal outlays, or decrease in personal taxes.( Carroll and Mowry)
+
+The personal savings rate typically decreases when individuals spend more than they initially save, be it due to inflation, consumer habits, or reliance on other financial assets. Because the personal savings rate can only go so low, a low rate can be a sign of a looming recession. In contrast, after financial crises, consumers are often more cautious and tend to raise the personal savings rate. For example, in 2008, personal savings rate rose from 1.4 percent to 2.6 percent and in 2009, it reached 4.3 percent, highest since 1998. (Carroll and Mowry) This increase can be explained by the 2008 recession, after which consumers became more cautious with their spending.  
+
+Given that saving rates is an indicator of a country’s economic performance, it is important to explore personal saving rates data in order to gain insights on the performance of economy. In this project, we are most interested in exploring the U.S. personal savings rate. By analyzing past data, we are able to form a mathematical model that will allow us to predict, monitor, and control the data. This understanding will enable us to take observe the projection of the personal savings rate and take precautionary measures to ensure economic growth. 
+
+The time series spans over 26 years with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, it is difficult to see any obvious seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates.
 
 
 
@@ -117,8 +130,8 @@ The ACF and PACF of the differenced series appear to suggest a seasonal trend in
 
 Based on the preliminary explorations of our original time series and the differenced series, the candidate models we have in mind are an AR(1) process or some type of seasonal model based on either the original or differenced series. We suspect that a seasonal model for the original series would have a seasonality of 4, but we are not sure if this seasonality will be retained in the differenced series.
 
-In order to validate these candidate models and determine the period of possible seasonal trends, we turn to the EACF and the best subsets methods.
 
+In order to validate these candidate models and determine the period of possible seasonal trends, we turn to the EACF and the best subsets methods.
 
 
 ```{r, echo=FALSE, fig.height=3, fig.width=4,fig.show='hold',fig.align='center', eval=FALSE}
@@ -213,7 +226,7 @@ title("ARIMA(0,1,0) and Seasonal ARIMA(1,0,1) with Period 6", outer = TRUE)
 ```
 The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
-```{r, echo = FALSE, fig.height=3.25, fig.width=3.25}
+```{r, echo = FALSE, fig.height=2.75, fig.width=2.75}
 ARresids = rstandard(AR1model)
 SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
@@ -295,6 +308,7 @@ ggplot(savings.df, aes(x = Time, y = Savings)) +
 
 # Discussion
 
+The forecasting for our model allows us to predict how personal savings rates will change in the near future. 
 
 # Appendix: R Code
 
