@@ -232,7 +232,7 @@ The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model again do not in
 
 Now, we will look at the Q-Q plots and Shapiro-Wilks tests for each of our three candidate models. Q-Q plots graph the quantiles of two probability distributions on each axis - in our case, a normal distribution on the x-axis, and the distribution of our residuals on the y-axis. If the residuals are normally distributed, the plot should form a straight line along the diagonal. The farther the plot strays from the diagonal, the less normal our residuals are. Similarly, the Shapiro-Wilks test tests for normality among standardized residuals. The alternative hypothesis of the Shapiro-Wilks test is that the standardized residuals of a certain model are not normally distributed, so smaller significant p-values indicate nonnormality among residuals.
 
-```{r, echo = FALSE, fig.height=2.75, fig.width=2.75}
+```{r, echo = FALSE, fig.height=3.5, fig.width=3.5}
 ARresids = rstandard(AR1model)
 SAR4resids = rstandard(SAR4model)
 SAR6resids = rstandard(SAR6model)
@@ -242,9 +242,15 @@ qqnorm(ARresids,main="AR(1) Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(ARresids)
 qqnorm(SAR4resids,main="Seasonal 4 Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
+```
+
+```{r, echo = FALSE, fig.height=3.5, fig.width=3.5}
 qqnorm(SAR6resids,main="Differenced Seasonal 6 Residuals",
        cex.lab=.85, cex.axis=.85, cex.main=.85, cex.sub=.85); qqline(SAR4resids)
 ```
+
+
+\newpage 
 
 #Shapiro-Wilks Test
 ```{r, echo=FALSE}
@@ -263,6 +269,7 @@ shapiro.test(SAR6resids)
 Based on their Q-Q plots and their Shapiro-Wilk tests, none of the models show evidence of residual nonnormality.  
 
 Finally, we will turn to runs tests. A run is a sequence of increasing or decreasing values, so a large difference in expected vs. observed runs may point towards residual dependence. Runs tests test for independence among standardized residuals of a certain model. The alternative hypothesis of the runs test is that the standardized residuals of a certain model are not independent, so smaller p-values indicate dependence among residuals.
+
 
 #Runs Test
 ```{r, eval = FALSE, echo=FALSE}
