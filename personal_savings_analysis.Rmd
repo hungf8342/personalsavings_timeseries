@@ -24,13 +24,15 @@ library(ggthemes)
 ```
 
 # Introduction
-The personal savings rate of consumers is one of many indicators of how a country’s economy is performing. Moreover, savings drive long-run economic growth as they provides funds for investment in capital or projects, which then drives future economic growth. Typically, household savings are invested either directly (i.e. when purchasing equity) or indirectly, (i.e. putting it into a bank, which uses those funds for lending) (Carroll and Mowry). These investments lead to economic growth in free-market economies. Additionally, the Harod-Domar Model of economic growth suggests that economic growth rates is driven by the level of savings. The model reasons that increased savings will lead to increased investment which result in higher capital stock, and thus, higher economic growth. 
+The personal savings rate of consumers is one of many indicators of how a country’s economy is performing. For example, savings drive long-run economic growth as they provide funds for investment in capital or projects, which then drives future economic growth. Typically, household savings are invested either directly (i.e. when purchasing equity) or indirectly, (i.e. putting them into a bank, which uses those funds for lending) (Carroll and Mowry). These investments lead to economic growth in free-market economies. Additionally, the Harod-Domar Model of economic growth suggests that economic growth rates are driven by the level of savings. The model reasons that increased savings will lead to increased investment which result in higher capital stock, and thus, higher economic growth. An increase in savings rate would furthermore enable higher investment without a rise in net foreign borrowing. This allows a country to be less dependent on foreign capital and more insulated from possible international capital shocks that can lead to financial panic (Staff). 
 
 \vspace{.5in}
 
 \centerline{\includegraphics[width=10cm]{hd.jpg}}
 
 \vspace{.5in}
+
+Maintaining a high savings rate is also crucial for personal prosperity and financial security in retirement. The Bureau of Economics Analysis found that households aged 40 and above, those in the bottom income quartile need to save about 21 percent more on average of their pre-tax income to ensure financial security in retirement (Staff). Failure to do so would result in households either working beyond official retirement age, accepting a lower standard of living in old age, or, in the worst case, running out of money altogether (Staff). 
 
 To understand the factors that influence personal savings rate, it is helpful to know how the savings rate is calculated. Personal savings can be understood as one minus the ratio of personal outlays (spending) to disposable income (personal income minus personal taxes). This calculation is expressed in the formula below. 
 
@@ -40,10 +42,7 @@ Moreover, this shows that an increase in the personal savings rate can be associ
 
 The personal savings rate typically decreases when individuals spend more than they initially save, be it due to inflation, consumer habits, or reliance on other financial assets. Because the personal savings rate can only go so low, a low rate can be a sign of a looming recession. In contrast, after financial crises, consumers are often more cautious and tend to raise the personal savings rate. For example, in 2008, personal savings rate rose from 1.4 percent to 2.6 percent and in 2009, it reached 4.3 percent, highest since 1998. (Carroll and Mowry) This increase can be explained by the 2008 recession, after which consumers became more cautious with their spending.  
 
-Given that saving rates is an indicator of a country’s economic performance, it is important to explore personal saving rates data in order to gain insights on the performance of economy. In this project, we are most interested in exploring the U.S. personal savings rate. By analyzing past data, we are able to form a mathematical model that will allow us to predict, monitor, and control the data. This understanding will enable us to take observe the projection of the personal savings rate and take precautionary measures to ensure economic growth. 
-
-The time series spans over 26 years with each year divided into financial quarters, amounting to 104 total observations. From our original time series plot, it is difficult to see any obvious seasonal trends. However, there seems to be a positive correlation between terms close to one another. The general increasing trend and volatility in the 70s may be linked to the economic crash in the early 70s and oil energy crisis in 1979. The 1970’s were marked by high inflation and growing expenses due to rising interest rates.
-
+Given that saving rates are an indicator of a country’s economic performance, it is important to explore personal saving rates data in order to gain insights on the performance of economy. In this project, we are most interested in exploring the U.S. personal savings rate. By analyzing past saving rates, we are able to form a time series which forecasts future rates. This understanding will enable us to take observe the projection of the personal savings rate and take precautionary measures to ensure economic growth or brace for recessions. 
 
 
 # Time Series Exploration
@@ -84,7 +83,7 @@ points(y=savings,x=as.vector(time(savings)),pch=as.vector(season(savings)), cex=
 abline(lm(savings~time(savings)), col='blue')
 ```
 
-In the time series, we see a general upward trend in the data, which indicates that the time series may not be stationary and we may want to consider taking the first difference of the data. Also, while do not see any \textit{obvious} seasonal trends, given that the data is divided into financial quarters we may want to consider the possibility of taking a seasonal difference to make our time series stationary. First, however, let's explore without taking the difference.
+In the time series, we see a general upward trend in the data, which indicates that the time series may not be stationary and we may want to consider taking the first difference of the data. Also, while we do not see any \textit{obvious} seasonal trends, given that the data is divided into financial quarters we may want to consider the possibility of taking a seasonal difference to make our time series stationary. First, however, let's explore without taking the difference.
 
 The first step in analyzing our time series is to consider the possible need for a transformation to stabilize the variance of the series over time. In order to do this, we use the function \textsc{BoxCox.ar} to determine the appropriate power transformation for time-series data.
 
@@ -128,7 +127,7 @@ acf(diffs, lag.max = 25, main="ACF of Differenced Savings Time Series")
 pacf(diffs, lag.max = 25, main= "PACF of Differenced Savings Time Series")
 ```
 
-The ACF and PACF of the differenced series appear to suggest a seasonal trend in the differenced series, however, the period of this trend is unclear.
+The ACF and PACF of the differenced series appear to suggest a seasonal trend in the differenced series; however, the period of this trend is unclear.
 
 \newpage
 
@@ -160,8 +159,9 @@ plot(sub)
 
 \includegraphics{differenced.png}
 
-The EACF for the differenced series also seemed to be inconclusive, and the best subsets method indicated a trend with a seasonal period of 6.  This is curious, as seasonality should theoretically be retained across a first difference.  There are a couple factors we think could be contributing to this change in seasonal period.  First is that a seasonal model with a period of 4 does not perfectly capture our original data. If our original data is far off enough from a true seasonal 4 model, then the first difference could have an entirely different seasonality.  The second factor is that our model includes an autoregressive component, which could also affect the first differencing process.
+The EACF for the differenced series also seemed to be inconclusive, and the best subsets method indicated a trend with a seasonal period of 6.  This is curious, as seasonality should theoretically be retained across a first difference.  There are a couple factors we think could be contributing to this change in seasonal period.  One factor is that a seasonal model with a period of 4 does not perfectly capture our original data. If our original data is far off enough from a true seasonal 4 model, then the first difference could have an entirely different seasonality.  The second factor is that our model includes an autoregressive component, which could also affect the first differencing process.
 
+\newpage
 
 # Model Fitting 
 
@@ -201,12 +201,10 @@ Thus the equations of our 3 models are:
 \end{enumerate}
 
 
-
-
 # Diagnostics
-Given the output from fitting the three models, we see that different error criterion point us to different model selections. While, the AR(1) model has the lowest BIC, but the seasonal model with a period of 4 has a lower standard error and AIC. Meanwhile the differenced seasonal model with a period of 6 has a similar AIC to the seasonal 4 model, but has the highest standard error. Thus, we turn to residual analysis to see if any of our models show abnormalities. 
+Given the output from fitting the three models, we see that different error criterion point us to different model selections. While the AR(1) model has the lowest BIC, the seasonal model with a period of 4 has a lower standard error and AIC. Meanwhile the differenced seasonal model with a period of 6 has a similar AIC to the seasonal 4 model, but has the highest standard error. Thus, we turn to residual analysis to see if any of our models show abnormalities. 
 
-In our residual analysis we are looking for 3 things: residual nonnormality, residual dependence, and residual structure. The presence of any of these 3 things may indicate that our model has not sufficiently identified the structure of the data and is not an adequate model.
+In our residual analysis we are looking for 3 things: residual nonnormality, residual dependence, and nonconstant variance among the residuals. The presence of any of these 3 things may indicate that our model has not sufficiently identified the structure of the data and is not an adequate model. In order to do so, first we look ar the standardized residuals, the ACF of the residuals, and the Ljung-Box test for each of our three models. A plot of the standardized residuals can illustrate residual nonnormality in the model, the residual ACF looks for dependence among the residuals, and the Ljung-Box test checks if the specified model is appropriate for the data or not. For the Ljung-Box test, the alternative hypothesis is that the specified model is not appropriate for the data, so smaller p-values indicate a possibly inappropriate model.
 
 ```{r, echo = FALSE, fig.height=7}
 # run some general diagnostics on the models
@@ -214,7 +212,7 @@ par(oma=c(0,0,2,0))
 tsdiag(AR1model)
 title("AR(1)", outer = TRUE)
 ```
-The residuals for the AR(1) model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is borderline significant for higher lags. This indicates possible dependence among residuals.
+The residuals for the AR(1) model do not indicate any nonnormality or heteroskedasticity, but the ACF shows that some lags do approach the error bounds, and the Ljung-Box statistic is borderline significant for higher lags. This indicates possible dependence among residuals.
 
 
 ```{r,echo=FALSE, , fig.height=7}
@@ -222,7 +220,7 @@ par(oma=c(0,0,2,0))
 tsdiag(SAR4model)
 title("AR(1) and Seasonal AR(1) with Period 4", outer = TRUE)
 ```
-The residuals for the $AR(1)xAR(1)_4$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
+The residuals for the $AR(1)xAR(1)_4$ model also do not indicate any nonnormality or heteroskedasticity, all bounds of the residual ACF are within the error bounds, pointing to a lack of correlation between residuals, and the Ljung-Box statistic is not significant for all tested lags.
 
 
 ```{r, echo=FALSE, fig.height=7}
@@ -230,7 +228,9 @@ par(oma=c(0,0,2,0))
 tsdiag(SAR6model)
 title("ARIMA(0,1,0) and Seasonal ARIMA(1,0,1) with Period 6", outer = TRUE)
 ```
-The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model resemble a white-noise process, the ACF shows no correlation patterns between residuals, and the Ljung-Box statistic is not significant for all tested lags.
+The residuals for the $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$ model again do not indicate any nonnormality or heteroskedasticity, all bounds of the residual ACF are also within the error bounds, pointing to a lack of correlation between residuals, and the Ljung-Box statistic is not significant for all tested lags.
+
+Now, we will look at the Q-Q plots and Shapiro-Wilks tests for each of our three candidate models. Q-Q plots graph the quantiles of two probability distributions on each axis - in our case, a normal distribution on the x-axis, and the distribution of our residuals on the y-axis. If the residuals are normally distributed, the plot should form a straight line along the diagonal. The farther the plot strays from the diagonal, the less normal our residuals are. Similarly, the Shapiro-Wilks test tests for normality among standardized residuals. The alternative hypothesis of the Shapiro-Wilks test is that the standardized residuals of a certain model are not normally distributed, so smaller significant p-values indicate nonnormality among residuals.
 
 ```{r, echo = FALSE, fig.height=2.75, fig.width=2.75}
 ARresids = rstandard(AR1model)
@@ -262,6 +262,8 @@ shapiro.test(SAR6resids)
 
 Based on their Q-Q plots and their Shapiro-Wilk tests, none of the models show evidence of residual nonnormality.  
 
+Finally, we will turn to runs tests. A run is a sequence of increasing or decreasing values, so a large difference in expected vs. observed runs may point towards residual dependence. Runs tests test for independence among standardized residuals of a certain model. The alternative hypothesis of the runs test is that the standardized residuals of a certain model are not independent, so smaller p-values indicate dependence among residuals.
+
 #Runs Test
 ```{r, eval = FALSE, echo=FALSE}
 # test the residuals for independence
@@ -282,9 +284,13 @@ kable(table)
 
 Our runs tests support the Ljung-Box tests, which indicated that there is no sufficient evidence to reject residual independence.
 
+\newpage 
 
 # Forecasting
 
+In our previous section, we concluded that the best model for our series is an $ARIMA(0,1,0) \times ARIMA(1,0,1)_6$. We now want to predict the values of the series at future times. This forecast will enable us to gain insights into the direction of which the savings rate is headed as well as the future health of the economy. 
+
+We forecasted our model with a built-in forecast ARIMA function in R. The red line signifies the forecasted values with a confidence bound of one standard error in darker grey and of two standard errors in lighter grey. We observed that the forecasted values increase at first and then slowly begin to decay. Additionally, the forecasted values generally maintain the previous seasonal pattern and its upward trend. Our forecasted values stay within one standard deviation from our actual values, which shows that our forecasts are a good prediction of our data. 
 
 ```{r,include=FALSE, echo=FALSE}
 forecasts = sarima.for(savings,n.ahead = 6, 0, 1, 0, P = 1, D = 0, Q = 1, S = 6)
@@ -311,10 +317,36 @@ ggplot(savings.df, aes(x = Time, y = Savings)) +
   
 ```
 
+Our analysis concludes that the savings rate will decrease in the near future time points as predicted by the model. However, our analysis also supports a general upward trend of the savings rate. This suggests that the economy is heading towards a temporary cyclical trend of choosing short-term consumption over long-term investment, but generally, savings rates are growing. A continuation of this temporary downward trend can indicate a looming economic stagnation. We hope that our analysis will help indicate when the savings rate becomes abnormally low or high compared to our forecasts, which may be a sign of impending economic trouble.
+
+\newpage
 
 # Discussion
 
-The forecasting for our model allows us to predict how personal savings rates will change in the near future. 
+The goal of the present analysis on the personal savings data was to construct a time series model which would adequately capture the savings trends across the data and accurately predict future data points in the years to come. In our analysis, we considered 3 different ARIMA and SARIMA models: a basic AR(1) process, a seasonal model with a period of 4, and a differenced seasonal model with a period of 6. Through our model diagnostics, we settled on the differenced seasonal 6 model as most appropriate model because removing the trend from the time series appeared to sufficiently reduce the series to a white noise process with normal and independent residuals. 
+
+One major challenge that we experienced in choosing our final model was the debate between the seasonal 4 model and the differenced seasonal 6 model. The fact that the data was broken down by financial quarter made the appearance of the seasonal 4 trend enticing. However, we decided that the upward trend in the data was too strong to ignore in the final model of the time series. Differencing the time series as we did in the final chosen model adequately preserved the upward trend in personal savings over time.
+
+We acknowledge that our analysis has a few shortcomings. The first one is that we cut off the last 5 years of our data set in order to obtain data with a general upward trend. As a consequence of this, our model does not include nor predict those 5 years of drastically tumbling savings rates. Moreover, our analysis is not generalizable to today’s savings rate because this data was captured 40 years ago. Though our time series provided insights into the past health of the economy, we would also be interested in seeing a similar time series of more current data. If the same seasonal and upward trend is prevalent for today’s data, it would be supportive of economic commonalities which drive savings rate changes back from the 70’s through today.
+ 
+\newpage
+
+#Bibliography
+
+“Personal Savings as % of Disposable Income 1955-1979.” DataMarket, https://datamarket.com/data/set/22vy/personal-savings-as-of-disposable-income-1955-1979#!ds=22vy&display=line
+
+Sullivan, Bob. “Once Again, Americans Are Not Saving Enough.” MarketWatch, MarketWatch, 28 Aug. 2018, www.marketwatch.com/story/once-again-americans-are-not-saving-enough-2018-08-28.
+
+
+Carroll, Daniel, and Beth Mowry. “Personal Savings Up, National Savings Down.” Economic Trends (07482922), vol. Apr2010, P8, 2010.
+
+
+Pettinger, Tejvan. “Would an Increase in Savings Help the Economy?” Economics Help, www.economicshelp.org/blog/7102/economics/would-an-increase-in-savings-help-the-economy/
+
+
+“Understanding the Economic Benefits of Increased Saving | Commentary.” Roll Call, 26 June 2014, www.rollcall.com/news/understanding_the_economic_benefits_of_increased_saving_commentary-234283-1.html.
+
+\newpage
 
 # Appendix: R Code
 
